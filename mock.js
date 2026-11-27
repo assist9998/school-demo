@@ -1114,8 +1114,7 @@ const ROLE_KEY = "demo_role", DESIGN_KEY = "demo_design", LANG_KEY = "demo_lang"
 const DESIGNS = {
   classic: { base: "dark", ru: "Ночь", en: "Night" },
   light: { base: "light", ru: "Светлая", en: "Light" },
-  warm: { base: "light", ru: "Тёплая", en: "Warm" },
-  bright: { base: "light", ru: "Яркая", en: "Bright" },
+  emerald: { base: "light", ru: "Изумруд", en: "Emerald" },
   strict: { base: "light", ru: "Строгая", en: "Strict" },
 };
 const EMBED_ALLOWED = ["https://assist9998.github.io", "http://localhost", "http://127.0.0.1"];
