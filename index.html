@@ -234,8 +234,28 @@ html[data-demo-design="strict"] body,html[data-demo-design="strict"] body *:not(
 html[data-demo-design="strict"] .header-title{letter-spacing:.02em;text-transform:uppercase;font-size:15px!important}
 html[data-demo-design="strict"] .nav{box-shadow:none}
 html[data-demo-design="emerald"] .nav{box-shadow:0 -4px 18px rgba(0,0,0,.06)}
+
+
+html[data-demo-design="fresh"]:root{
+  --bg:#eef1fb;--surface:#ffffff;--surface2:#f0f3fc;--accent:#4f6bf2;--accent2:#22b58d;--danger:#f0645a;--warning:#f2a93b;
+  --text:#1b2136;--text2:#76809c;--border:#e3e8f6;--radius:20px;--radius-sm:16px;--grad1:#4f6bf2;--grad2:#7f8cff;
+  --g5:#119b75;--g5-bg:rgba(34,181,141,.14);--g4:#4f6bf2;--g4-bg:rgba(79,107,242,.13);--g3:#b07d14;--g3-bg:rgba(242,169,59,.16);--g2:#d9473d;--g2-bg:rgba(240,100,90,.13);
+}
+html[data-demo-design="fresh"] body,html[data-demo-design="fresh"] body *:not(svg):not(path){font-family:'Manrope',sans-serif!important}
+html[data-demo-design="fresh"] .stat-card,html[data-demo-design="fresh"] .group-bar,html[data-demo-design="fresh"] .att-stat,
+html[data-demo-design="fresh"] .child-card,html[data-demo-design="fresh"] .child-list-item{border:0!important;box-shadow:0 2px 12px rgba(40,55,120,.08)}
+html[data-demo-design="fresh"] .child-card.present{box-shadow:0 0 0 2px rgba(34,181,141,.55),0 2px 12px rgba(40,55,120,.08)}
+html[data-demo-design="fresh"] .filter-btn,html[data-demo-design="fresh"] .week-arrow-btn{border-radius:999px;border-color:#dce2f4;background:#fff}
+html[data-demo-design="fresh"] .filter-btn.active{box-shadow:0 3px 10px rgba(79,107,242,.35)}
+html[data-demo-design="fresh"] .header{background:transparent;border-bottom:0}
+html[data-demo-design="fresh"] .section-title,html[data-demo-design="fresh"] .group-title{letter-spacing:.1em;font-weight:800}
+html[data-demo-design="fresh"] body{padding-bottom:calc(var(--nav-h) + 30px)}
+html[data-demo-design="fresh"] .nav{left:12px;right:12px;bottom:10px;height:var(--nav-h);padding-bottom:0;border:0;border-radius:26px;box-shadow:0 10px 30px rgba(40,55,120,.2)}
+html[data-demo-design="fresh"] .nav-btn.active{color:var(--accent)}
+html[data-demo-design="fresh"] .progress{height:8px;border-radius:8px}
+html[data-demo-design="fresh"] .progress-fill{border-radius:8px}
 </style>
-<script src="mock.js?v=1795784450"></script>
+<script src="mock.js?v=1795785623"></script>
 </head>
 <body>
 

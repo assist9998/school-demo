@@ -1111,8 +1111,9 @@ function installTranslator(win) {
 // ── Браузерная обвязка: подмена Telegram, fetch, часов; роли, дизайны, язык ──
 const API_HOST = "https://api.demo.local";
 const API_HOST_BACKUP = "https://api-backup.demo.local";
-const ROLE_KEY = "demo_role", DESIGN_KEY = "demo_design_v2", LANG_KEY = "demo_lang";
+const ROLE_KEY = "demo_role", DESIGN_KEY = "demo_design_v3", LANG_KEY = "demo_lang";
 const DESIGNS = {
+  fresh: { base: "light", ru: "Свежая", en: "Fresh" },
   light: { base: "light", ru: "Светлая", en: "Light" },
   emerald: { base: "light", ru: "Изумруд", en: "Emerald" },
   classic: { base: "dark", ru: "Ночь", en: "Night" },
@@ -1155,7 +1156,7 @@ function readOpts(win) {
   const pick = (k, key, ok, def) => { const v = q.get(k) || lsGet(key); return ok(v) ? v : def; };
   const o = {
     role: pick("role", ROLE_KEY, v => !!USERS[v], "teacher"),
-    design: pick("design", DESIGN_KEY, v => !!DESIGNS[v], "light"),
+    design: pick("design", DESIGN_KEY, v => !!DESIGNS[v], "fresh"),
     lang: pick("lang", LANG_KEY, v => v === "en" || v === "ru", "ru"),
     embed: q.get("embed") === "1",
   };
@@ -1251,7 +1252,7 @@ function browserInit(win) {
   win.addEventListener("DOMContentLoaded", () => { renderPanel = mountSwitcher(win, page, o); });
 }
 
-const DESIGN_DOTS = { classic: ["#0f1117", "#4f8ef7"], light: ["#f4f6fb", "#3b6fe0"], emerald: ["#eef7f3", "#0f9d78"], strict: ["#ffffff", "#111111"] };
+const DESIGN_DOTS = { fresh: ["#eef1fb", "#4f6bf2"], classic: ["#0f1117", "#4f8ef7"], light: ["#f4f6fb", "#3b6fe0"], emerald: ["#eef7f3", "#0f9d78"], strict: ["#ffffff", "#111111"] };
 // Две отдельные кнопки сверху телефона: «роль» и «дизайн». Каждая открывает свой маленький список.
 function mountSwitcher(win, page, o) {
   const doc = win.document;
