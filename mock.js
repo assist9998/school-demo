@@ -1110,11 +1110,11 @@ function installTranslator(win) {
 // ── Браузерная обвязка: подмена Telegram, fetch, часов; роли, дизайны, язык ──
 const API_HOST = "https://api.demo.local";
 const API_HOST_BACKUP = "https://api-backup.demo.local";
-const ROLE_KEY = "demo_role", DESIGN_KEY = "demo_design", LANG_KEY = "demo_lang";
+const ROLE_KEY = "demo_role", DESIGN_KEY = "demo_design_v2", LANG_KEY = "demo_lang";
 const DESIGNS = {
-  classic: { base: "dark", ru: "Ночь", en: "Night" },
   light: { base: "light", ru: "Светлая", en: "Light" },
   emerald: { base: "light", ru: "Изумруд", en: "Emerald" },
+  classic: { base: "dark", ru: "Ночь", en: "Night" },
   strict: { base: "light", ru: "Строгая", en: "Strict" },
 };
 const EMBED_ALLOWED = ["https://assist9998.github.io", "http://localhost", "http://127.0.0.1"];
@@ -1154,7 +1154,7 @@ function readOpts(win) {
   const pick = (k, key, ok, def) => { const v = q.get(k) || lsGet(key); return ok(v) ? v : def; };
   const o = {
     role: pick("role", ROLE_KEY, v => !!USERS[v], "teacher"),
-    design: pick("design", DESIGN_KEY, v => !!DESIGNS[v], "classic"),
+    design: pick("design", DESIGN_KEY, v => !!DESIGNS[v], "light"),
     lang: pick("lang", LANG_KEY, v => v === "en" || v === "ru", "ru"),
     embed: q.get("embed") === "1",
   };
