@@ -1,0 +1,216 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex,nofollow">
+<title>School</title>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root { --bg:#f4f5fb; --card:#fff; --ink:#1c2233; --mute:#7a8197; --line:#e7e9f3; --ind:#4f5bd5; --ind2:#e8eaff; --cor:#ff7a59; --cor2:#ffe9e2; --grn:#2fa37a; --grn2:#dcf4ea; --amb:#f2a93b; --amb2:#fff1d6; --radius:20px; }
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+  html, body { height: 100%; overflow: hidden; overscroll-behavior: none; }
+  body { font-family: 'Manrope', system-ui, -apple-system, sans-serif; background: var(--bg); color: var(--ink); font-size: 14px; display: flex; flex-direction: column; }
+  header { padding: 14px 16px 4px; display: flex; align-items: center; gap: 10px; }
+  .me { width: 42px; height: 42px; border-radius: 50%; object-fit: cover; background: var(--ind2); flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-weight: 800; color: var(--ind); }
+  header .hi { flex: 1; min-width: 0; }
+  header small { display: block; color: var(--mute); font-weight: 700; font-size: 12px; }
+  header b { display: block; font-size: 17px; font-weight: 800; letter-spacing: -.01em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .seg { display: flex; background: #e8eaf6; border-radius: 999px; padding: 3px; flex-shrink: 0; }
+  .seg button { font: inherit; font-weight: 800; font-size: 12px; padding: 6px 11px; border: 0; background: none; color: var(--mute); border-radius: 999px; cursor: pointer; }
+  .seg button.on { background: #fff; color: var(--ind); box-shadow: 0 1px 3px rgba(40,50,120,.15); }
+  nav { display: flex; gap: 4px; padding: 8px 12px 6px; overflow-x: auto; scrollbar-width: none; flex-shrink: 0; }
+  nav::-webkit-scrollbar { display: none; }
+  nav button { font: inherit; font-weight: 800; font-size: 13px; padding: 8px 14px; border: 0; background: none; color: var(--mute); border-radius: 12px; cursor: pointer; white-space: nowrap; position: relative; }
+  nav button.on { color: var(--ind); background: var(--ind2); }
+  main { flex: 1; overflow-y: auto; padding: 6px 14px 26px; }
+  h2 { font-size: 12px; font-weight: 800; color: var(--mute); text-transform: uppercase; letter-spacing: .08em; margin: 16px 2px 8px; }
+  .card { background: var(--card); border-radius: var(--radius); padding: 14px; margin-bottom: 10px; box-shadow: 0 1px 2px rgba(30,40,90,.05); }
+  .row { display: flex; align-items: center; gap: 10px; }
+  .grow { flex: 1; min-width: 0; }
+  .days { display: flex; gap: 6px; margin: 4px 0 10px; }
+  .day { flex: 1; text-align: center; padding: 8px 0; border-radius: 14px; background: var(--card); color: var(--mute); font-weight: 800; font-size: 11px; box-shadow: 0 1px 2px rgba(30,40,90,.05); }
+  .day b { display: block; font-size: 16px; color: var(--ink); margin-top: 2px; }
+  .day.on { background: var(--ind); color: #dfe2ff; } .day.on b { color: #fff; }
+  .lesson { display: flex; gap: 12px; align-items: stretch; cursor: pointer; }
+  .tm { width: 56px; text-align: center; flex-shrink: 0; }
+  .tm b { display: block; font-size: 15px; font-weight: 800; } .tm span { font-size: 11px; color: var(--mute); font-weight: 700; }
+  .lbody { flex: 1; min-width: 0; }
+  .lbody .sub { font-weight: 800; font-size: 15px; }
+  .lbody .cls { color: var(--mute); font-weight: 700; font-size: 12.5px; margin-top: 2px; }
+  .chip { display: inline-block; font-size: 11px; font-weight: 800; padding: 3px 9px; border-radius: 999px; margin: 6px 6px 0 0; }
+  .c-ok { background: var(--grn2); color: #1f7a5a; } .c-todo { background: var(--amb2); color: #9a6410; } .c-cov { background: var(--ind2); color: var(--ind); } .c-no { background: var(--cor2); color: #c4502f; }
+  .lesson.cancel { opacity: .55; } .lesson.cancel .sub { text-decoration: line-through; }
+  .sum { display: flex; gap: 8px; margin-bottom: 10px; }
+  .sum div { flex: 1; background: var(--card); border-radius: 16px; padding: 10px; text-align: center; box-shadow: 0 1px 2px rgba(30,40,90,.05); }
+  .sum b { display: block; font-size: 20px; font-weight: 800; } .sum span { font-size: 11px; color: var(--mute); font-weight: 700; }
+  .ini { width: 34px; height: 34px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 12px; flex-shrink: 0; }
+  .stack { display: flex; } .stack .ini { margin-left: -9px; border: 2px solid #fff; width: 28px; height: 28px; font-size: 10px; } .stack .ini:first-child { margin-left: 0; }
+  .mark { display: inline-flex; width: 28px; height: 28px; align-items: center; justify-content: center; border-radius: 9px; font-weight: 800; font-size: 13px; }
+  .m5 { background: var(--grn2); color: #1f7a5a; } .m4 { background: var(--ind2); color: var(--ind); } .m3 { background: var(--amb2); color: #9a6410; } .m2 { background: var(--cor2); color: #c4502f; } .m0 { background: #f0f1f7; color: #b3b8cc; }
+  table { width: 100%; border-collapse: separate; border-spacing: 0 5px; }
+  td, th { padding: 0 3px; text-align: center; }
+  th { font-size: 10.5px; color: var(--mute); font-weight: 800; padding-bottom: 2px; }
+  td.nm { text-align: left; display: flex; align-items: center; gap: 8px; font-weight: 800; font-size: 12.5px; min-width: 112px; }
+  td.avg { font-weight: 800; color: var(--ind); }
+  .chips { display: flex; gap: 6px; overflow-x: auto; scrollbar-width: none; margin: 2px 0 10px; }
+  .chips::-webkit-scrollbar { display: none; }
+  .pickc { font: inherit; font-weight: 800; font-size: 12.5px; padding: 7px 13px; border-radius: 999px; border: 1.5px solid var(--line); background: var(--card); color: var(--mute); cursor: pointer; white-space: nowrap; }
+  .pickc.on { border-color: var(--ind); background: var(--ind2); color: var(--ind); }
+  .bar { height: 8px; border-radius: 8px; background: var(--line); overflow: hidden; } .bar i { display: block; height: 100%; background: var(--ind); border-radius: 8px; }
+  .kv { display: flex; justify-content: space-between; gap: 10px; padding: 9px 0; border-top: 1px solid var(--line); font-weight: 700; } .kv:first-child { border-top: 0; }
+  .kv span:first-child { color: var(--mute); }
+  .big { font-size: 28px; font-weight: 800; letter-spacing: -.02em; }
+  .sheet-bg { position: fixed; inset: 0; background: rgba(20,24,50,.45); display: none; z-index: 50; } .sheet-bg.on { display: block; }
+  .sheet { position: absolute; left: 0; right: 0; bottom: 0; background: var(--card); border-radius: 26px 26px 0 0; padding: 16px 16px 20px; max-height: 88%; overflow-y: auto; animation: up .2s ease-out; }
+  @keyframes up { from { transform: translateY(40px); opacity: 0; } to { transform: none; opacity: 1; } }
+  .sheet h3 { font-size: 18px; font-weight: 800; } .sheet .sub { color: var(--mute); font-weight: 700; margin: 2px 0 10px; }
+  .field { width: 100%; font: inherit; font-weight: 600; padding: 10px 12px; border: 1.5px solid var(--line); border-radius: 14px; background: #fafbff; color: var(--ink); margin-bottom: 8px; resize: none; }
+  .field:focus { outline: none; border-color: var(--ind); }
+  .lab { font-size: 11px; font-weight: 800; color: var(--mute); text-transform: uppercase; letter-spacing: .07em; margin: 8px 2px 5px; }
+  .pup { display: flex; align-items: center; gap: 10px; padding: 7px 0; border-top: 1px solid var(--line); } .pup:first-of-type { border-top: 0; }
+  .tog { font: inherit; font-weight: 800; font-size: 11.5px; padding: 5px 10px; border-radius: 999px; border: 0; cursor: pointer; background: var(--grn2); color: #1f7a5a; } .tog.abs { background: var(--cor2); color: #c4502f; }
+  .gr { display: flex; gap: 4px; } .gr button { width: 26px; height: 26px; border-radius: 8px; border: 0; font: inherit; font-weight: 800; font-size: 12px; cursor: pointer; background: #f0f1f7; color: var(--mute); }
+  .gr button.on.g5 { background: var(--grn); color: #fff; } .gr button.on.g4 { background: var(--ind); color: #fff; } .gr button.on.g3 { background: var(--amb); color: #fff; } .gr button.on.g2 { background: var(--cor); color: #fff; }
+  .btn { font: inherit; font-weight: 800; border: 0; border-radius: 14px; padding: 12px 16px; background: var(--ind); color: #fff; cursor: pointer; width: 100%; margin-top: 12px; }
+  .toast { position: fixed; left: 50%; bottom: 18px; transform: translateX(-50%); background: var(--ink); color: #fff; padding: 9px 16px; border-radius: 999px; font-weight: 700; font-size: 13px; display: none; z-index: 60; white-space: nowrap; }
+</style></head>
+<body>
+<header><img class="me" id="me" alt=""><div class="hi"><small id="date"></small><b id="hello"></b></div><div class="seg" id="role"></div></header>
+<nav id="nav"></nav>
+<main id="main"></main>
+<div class="sheet-bg" id="bg"><div class="sheet" id="sheet"></div></div>
+<div class="toast" id="toast"></div>
+<script>
+(function () {
+  var ALLOWED = ["https://assist9998.github.io", "http://localhost", "http://127.0.0.1"];
+  if (window.top !== window) {
+    var o = []; try { var ao = window.location.ancestorOrigins; if (ao && ao.length) o = [].slice.call(ao); } catch (e) {}
+    if (!o.length && document.referrer) { try { o = [new URL(document.referrer).origin]; } catch (e) {} }
+    if (o.length && !o.every(function (x) { return ALLOWED.some(function (a) { return x === a || x.indexOf(a + ":") === 0; }); })) { document.documentElement.innerHTML = "<body style='font-family:system-ui;padding:24px;text-align:center'>This demo opens only on the author's site.</body>"; return; }
+  }
+  var EN = new URLSearchParams(location.search).get("lang") !== "ru";
+  document.documentElement.lang = EN ? "en" : "ru";
+  var t = function (en, ru) { return EN ? en : ru; };
+  var $ = function (id) { return document.getElementById(id); };
+  var TINTS = [["#e8eaff", "#4f5bd5"], ["#ffe9e2", "#c4502f"], ["#dcf4ea", "#1f7a5a"], ["#fff1d6", "#9a6410"], ["#f1e4ff", "#7a45c0"], ["#dff3fb", "#1b7da0"]];
+  var DAYS = [["Mon", "Пн", 9], ["Tue", "Вт", 10], ["Wed", "Ср", 11], ["Thu", "Чт", 12], ["Fri", "Пт", 13]];
+
+  // ── выдуманные данные ──
+  var SUBJ = { math: ["Math", "Математика"], pe: ["PE", "Физкультура"], sci: ["Science", "Окружающий мир"], read: ["Reading", "Чтение"], art: ["Art", "ИЗО"] };
+  var NAMES = ["Mia Carter", "Leo Evans", "Zoe Parker", "Noah Hughes", "Ella Brooks", "Max Turner", "Ivy Foster", "Finn Hayes", "Ruby Bell", "Jack Reed", "Lily Ward", "Owen Cole", "Nora Price", "Theo Grant", "Cleo Rivera", "Ben Shaw", "Maya Lane", "Liam Fox", "Ada Stone", "Kai Moore", "Rosa Webb", "Sam Cook", "Luna Bates", "Eli Marsh"];
+  var CLASSES = [1, 2, 3].map(function (g) { return { g: g, pupils: NAMES.slice((g - 1) * 8, g * 8).map(function (n, i) { return { id: (g - 1) * 8 + i, name: n, abs: false, today: 0 }; }) }; });
+  var seed = 7; function rnd() { seed = (seed * 9301 + 49297) % 233280; return seed / 233280; }
+  var HIST = {}; // pupilId -> 5 оценок за прошлые дни
+  CLASSES.forEach(function (c) { c.pupils.forEach(function (p) { HIST[p.id] = [0, 1, 2, 3, 4].map(function () { var r = rnd(); return r < .08 ? 0 : r < .3 ? 3 : r < .65 ? 4 : 5; }); }); });
+  var TOPICS = { math: ["Fractions: halves and quarters", "Word problems in two steps", "Perimeter of a rectangle"], sci: ["Water and its properties"], pe: ["Team relay with a ball"] };
+  var TOPICS_RU = { math: ["Доли: половина и четверть", "Задачи в два действия", "Периметр прямоугольника"], sci: ["Вода и её свойства"], pe: ["Эстафета с мячом"] };
+  var lessons = [
+    { id: 0, time: "09:55", end: "10:40", subj: "pe", g: 1, kind: "cover", done: true, topic: 0, hw: "", cover: "Dennis Walsh" },
+    { id: 1, time: "10:50", end: "11:35", subj: "math", g: 3, kind: "", done: false, topic: -1, hw: "" },
+    { id: 2, time: "12:00", end: "12:45", subj: "math", g: 2, kind: "", done: false, topic: -1, hw: "" },
+    { id: 3, time: "12:55", end: "13:40", subj: "sci", g: 1, kind: "swap", was: "math", done: false, topic: -1, hw: "" },
+    { id: 4, time: "14:00", end: "14:45", subj: "math", g: 3, kind: "cancel", done: false, topic: -1, hw: "" },
+  ];
+  lessons[0].topicText = [TOPICS.pe[0], TOPICS_RU.pe[0]]; lessons[0].hw = ["", ""];
+  var RATE = 12, MONTH_DONE = 64;
+  var role = "teacher", tab = "today", mclass = 3, parentKid = 18, toastT;
+
+  function cls(g) { return CLASSES[g - 1]; }
+  function sn(k) { return SUBJ[k][EN ? 0 : 1]; }
+  function ini(name, i) { var c = TINTS[(i || name.length) % TINTS.length]; return '<span class="ini" style="background:' + c[0] + ';color:' + c[1] + '">' + name.split(" ").map(function (w) { return w[0]; }).join("") + "</span>"; }
+  function avg(arr) { var a = arr.filter(function (x) { return x > 0; }); return a.length ? (a.reduce(function (s, x) { return s + x; }, 0) / a.length) : 0; }
+  function f1(x) { return x ? x.toFixed(1).replace(".", EN ? "." : ",") : "—"; }
+  function mk(v) { return '<span class="mark m' + (v || 0) + '">' + (v || "·") + "</span>"; }
+  function toast(m) { var e = $("toast"); e.textContent = m; e.style.display = "block"; clearTimeout(toastT); toastT = setTimeout(function () { e.style.display = "none"; }, 1600); }
+  $("date").textContent = t("Friday, 13 November", "Пятница, 13 ноября");
+
+  var TABS = { teacher: [["today", "Today", "Сегодня"], ["classes", "Classes", "Классы"], ["marks", "Marks", "Оценки"], ["pay", "Pay", "Зарплата"]], parent: [["diary", "Diary", "Дневник"], ["pmarks", "Marks", "Оценки"]] };
+  function render() {
+    if (role === "parent" && !TABS.parent.some(function (x) { return x[0] === tab; })) tab = "diary";
+    if (role === "teacher" && !TABS.teacher.some(function (x) { return x[0] === tab; })) tab = "today";
+    var kid = null; CLASSES.forEach(function (c) { c.pupils.forEach(function (p) { if (p.id === parentKid) kid = p; }); });
+    if (role === "teacher") { $("me").outerHTML = '<img class="me" id="me" src="kids/staff-1.jpg" alt="" onerror="this.outerHTML=\'<span class=&quot;me&quot; id=&quot;me&quot;>EC</span>\'">'; $("hello").textContent = t("Good morning, Emily", "Доброе утро, Эмили"); }
+    else { $("me").outerHTML = '<span class="me" id="me">PW</span>'; $("hello").textContent = t("Hello, Parent", "Здравствуйте, родитель"); }
+    $("role").innerHTML = ["teacher", "parent"].map(function (r) { return '<button data-r="' + r + '" class="' + (role === r ? "on" : "") + '">' + (r === "teacher" ? t("Teacher", "Учитель") : t("Parent", "Родитель")) + "</button>"; }).join("");
+    $("role").querySelectorAll("button").forEach(function (b) { b.onclick = function () { role = b.dataset.r; render(); $("main").scrollTop = 0; }; });
+    $("nav").innerHTML = TABS[role].map(function (x) { return '<button data-t="' + x[0] + '" class="' + (tab === x[0] ? "on" : "") + '">' + (EN ? x[1] : x[2]) + "</button>"; }).join("");
+    $("nav").querySelectorAll("button").forEach(function (b) { b.onclick = function () { tab = b.dataset.t; render(); $("main").scrollTop = 0; }; });
+    $("main").innerHTML = ({ today: vToday, classes: vClasses, marks: vMarks, pay: vPay, diary: vDiary, pmarks: vPMarks })[tab]();
+    bind();
+  }
+  function daysStrip() { return '<div class="days">' + DAYS.map(function (d, i) { return '<div class="day ' + (i === 4 ? "on" : "") + '">' + (EN ? d[0] : d[1]) + "<b>" + d[2] + "</b></div>"; }).join("") + "</div>"; }
+  function chipOf(l) {
+    if (l.kind === "cancel") return '<span class="chip c-no">' + t("Cancelled", "Отменён") + "</span>";
+    var s = l.done ? '<span class="chip c-ok">✓ ' + t("Filled in", "Заполнен") + "</span>" : '<span class="chip c-todo">' + t("Not filled in", "Не заполнен") + "</span>";
+    if (l.kind === "cover") s += '<span class="chip c-cov">' + t("Cover for ", "Замена за ") + l.cover + "</span>";
+    if (l.kind === "swap") s += '<span class="chip c-cov">' + t("Instead of ", "Вместо: ") + sn(l.was) + "</span>";
+    return s;
+  }
+  function vToday() {
+    var todo = lessons.filter(function (l) { return !l.done && l.kind !== "cancel"; }).length, done = lessons.filter(function (l) { return l.done; }).length;
+    return daysStrip() + '<div class="sum"><div><b>' + lessons.filter(function (l) { return l.kind !== "cancel"; }).length + "</b><span>" + t("lessons", "уроков") + '</span></div><div><b style="color:var(--grn)">' + done + "</b><span>" + t("filled in", "заполнено") + '</span></div><div><b style="color:var(--amb)">' + todo + "</b><span>" + t("to fill", "ждут") + "</span></div></div>" +
+      lessons.map(function (l) { return '<div class="card lesson ' + (l.kind === "cancel" ? "cancel" : "") + '" data-l="' + l.id + '"><div class="tm"><b>' + l.time + "</b><span>" + l.end + '</span></div><div class="lbody"><div class="sub">' + sn(l.subj) + '</div><div class="cls">' + t("Grade ", "") + l.g + t("", " класс") + "</div>" + chipOf(l) + "</div></div>"; }).join("") +
+      '<p style="text-align:center;color:var(--mute);font-weight:700;margin-top:10px">' + t("Tap a lesson to add the topic, homework, attendance and marks.", "Нажмите на урок, чтобы внести тему, домашку, посещаемость и оценки.") + "</p>";
+  }
+  function vClasses() {
+    return CLASSES.map(function (c, i) { var all = []; c.pupils.forEach(function (p) { all = all.concat(HIST[p.id]); if (p.today) all.push(p.today); });
+      return '<div class="card row" data-c="' + c.g + '" style="cursor:pointer"><div class="grow"><div style="font-weight:800;font-size:16px">' + t("Grade ", "") + c.g + t("", " класс") + '</div><div style="color:var(--mute);font-weight:700;font-size:12.5px;margin:2px 0 8px">' + c.pupils.length + " " + t("pupils", "учеников") + " · " + t("average ", "средний ") + f1(avg(all)) + '</div><div class="stack">' + c.pupils.slice(0, 6).map(function (p, k) { return ini(p.name, k); }).join("") + "</div></div><span style=\"color:var(--mute);font-size:20px\">›</span></div>"; }).join("");
+  }
+  function vMarks() {
+    var c = cls(mclass);
+    return '<div class="chips">' + CLASSES.map(function (x) { return '<button class="pickc ' + (mclass === x.g ? "on" : "") + '" data-mc="' + x.g + '">' + t("Grade ", "") + x.g + t("", " класс") + "</button>"; }).join("") + "</div>" +
+      '<div class="card"><table><tr><th></th>' + DAYS.slice(0, 4).map(function (d) { return "<th>" + d[2] + "</th>"; }).join("") + "<th>" + t("Today", "Сег.") + "</th><th>" + t("Avg", "Ср.") + "</th></tr>" +
+      c.pupils.map(function (p) { var h = HIST[p.id].slice(1); return "<tr><td class=\"nm\">" + ini(p.name, p.id) + "<span>" + p.name.split(" ")[0] + "</span></td>" + h.map(function (v) { return "<td>" + mk(v) + "</td>"; }).join("") + '<td data-cell="' + p.id + '" style="cursor:pointer">' + mk(p.today) + '</td><td class="avg">' + f1(avg(h.concat(p.today ? [p.today] : []))) + "</td></tr>"; }).join("") + "</table></div>" +
+      '<p style="text-align:center;color:var(--mute);font-weight:700">' + t("Tap a mark in the Today column to change it.", "Нажмите на оценку в колонке «Сег.», чтобы изменить.") + "</p>";
+  }
+  function vPay() {
+    var done = MONTH_DONE + lessons.filter(function (l) { return l.done; }).length - 1, sal = done * RATE;
+    var weeks = [14, 16, 15, 19];
+    return '<div class="card"><div style="color:var(--mute);font-weight:700">' + t("November so far", "Ноябрь на сегодня") + '</div><div class="big">' + sal.toLocaleString(EN ? "en-US" : "ru-RU") + " " + t("c.u.", "у. е.") + '</div><div class="bar" style="margin:10px 0 4px"><i style="width:' + Math.min(100, done / 80 * 100) + '%"></i></div><div style="color:var(--mute);font-weight:700;font-size:12.5px">' + done + " " + t("lessons × ", "уроков × ") + RATE + " " + t("c.u.", "у. е.") + "</div></div>" +
+      "<h2>" + t("Lessons by week", "Уроки по неделям") + "</h2><div class=\"card\">" + weeks.map(function (w, i) { return '<div class="row" style="margin:7px 0"><span style="width:62px;font-weight:800;font-size:12.5px;color:var(--mute)">' + t("Week ", "Нед. ") + (i + 1) + '</span><div class="bar grow"><i style="width:' + w / 20 * 100 + '%"></i></div><b style="width:26px;text-align:right">' + w + "</b></div>"; }).join("") + "</div>" +
+      "<h2>" + t("How it is counted", "Как считается") + '</h2><div class="card"><div class="kv"><span>' + t("A lesson counts when", "Урок засчитывается, когда") + "</span><span>" + t("topic or attendance is filled in", "внесена тема или посещаемость") + '</span></div><div class="kv"><span>' + t("Covers", "Замены") + "</span><span>" + t("counted for who taught", "считаются тому, кто провёл") + '</span></div><div class="kv"><span>' + t("Cancelled lessons", "Отменённые уроки") + "</span><span>" + t("not counted", "не считаются") + "</span></div></div>";
+  }
+  function kidClass() { return cls(Math.floor(parentKid / 8) + 1); }
+  function vDiary() {
+    var kidName = NAMES[parentKid], cl = kidClass();
+    var rows = [["math", "09:00", "Fractions: halves and quarters", "Дроби: половина и четверть", "Page 24, exercises 3–5", "Стр. 24, № 3–5", 5], ["read", "09:55", "Fables: the fox and the crow", "Басни: лиса и ворона", "Read the fable at home", "Прочитать басню дома", 0], ["sci", "10:50", "", "", "", "", 0], ["art", "12:00", "Painting an autumn landscape", "Рисуем осенний пейзаж", "Bring a drawing", "Принести рисунок", 4]];
+    var live = lessons.filter(function (l) { return l.g === cl.g && l.done && l.subj !== "pe"; })[0];
+    return '<div class="chips">' + [18, 3].map(function (id) { return '<button class="pickc ' + (parentKid === id ? "on" : "") + '" data-pk="' + id + '">' + NAMES[id].split(" ")[0] + "</button>"; }).join("") + "</div>" + daysStrip() +
+      rows.map(function (r, i) { var l = lessons.filter(function (x) { return x.g === cl.g && x.subj === r[0] && x.done; })[0]; var tp = l ? l.topicText : [r[2], r[3]]; var hw = l ? l.hw : [r[4], r[5]]; var mkv = l ? (cl.pupils.filter(function (p) { return p.id === parentKid; })[0].today || 0) : r[6];
+        return '<div class="card lesson" style="cursor:default"><div class="tm"><b>' + r[1] + '</b></div><div class="lbody"><div class="row"><div class="sub grow">' + sn(r[0]) + "</div>" + (mkv ? mk(mkv) : "") + "</div>" + (tp[EN ? 0 : 1] ? '<div class="cls">' + tp[EN ? 0 : 1] + "</div>" : '<div class="cls">' + t("Topic not added yet", "Тема ещё не внесена") + "</div>") + (hw[EN ? 0 : 1] ? '<span class="chip c-cov">✎ ' + hw[EN ? 0 : 1] + "</span>" : "") + "</div></div>"; }).join("") +
+      '<p style="text-align:center;color:var(--mute);font-weight:700">' + (live ? t("This lesson was just filled in by the teacher: switch the role to Teacher to try it.", "Этот урок только что заполнил учитель. Переключитесь на «Учитель», чтобы попробовать.") : t("Topics and homework appear here as soon as the teacher fills them in.", "Темы и домашка появляются здесь, как только учитель их внесёт.")) + "</p>";
+  }
+  function vPMarks() {
+    var cl = kidClass(), all = HIST[parentKid];
+    return '<div class="card row"><div class="grow"><div style="color:var(--mute);font-weight:700">' + NAMES[parentKid] + '</div><div class="big">' + f1(avg(all)) + '</div><div style="color:var(--mute);font-weight:700;font-size:12.5px">' + t("average this term", "средний балл за триместр") + "</div></div>" + all.map(mk).join(" ") + "</div>" +
+      ["math", "read", "sci", "art"].map(function (s, i) { var a = [4.6, 4.2, 4.8, 4.4][i]; return '<div class="card"><div class="row"><b class="grow">' + sn(s) + '</b><b style="color:var(--ind)">' + a.toFixed(1).replace(".", EN ? "." : ",") + '</b></div><div class="bar" style="margin-top:8px"><i style="width:' + a / 5 * 100 + '%"></i></div></div>'; }).join("");
+  }
+  function sheetLesson(l) {
+    var c = cls(l.g);
+    $("sheet").innerHTML = "<h3>" + sn(l.subj) + " · " + t("Grade ", "") + l.g + t("", " класс") + '</h3><div class="sub">' + l.time + "–" + l.end + (l.kind === "cover" ? " · " + t("cover for ", "замена за ") + l.cover : "") + '</div>' +
+      '<div class="lab">' + t("Topic", "Тема урока") + '</div><textarea class="field" id="fT" rows="2" placeholder="' + t("What was the lesson about?", "О чём был урок?") + '">' + (l.topicText ? l.topicText[EN ? 0 : 1] : "") + '</textarea><div class="lab">' + t("Homework", "Домашнее задание") + '</div><textarea class="field" id="fH" rows="2">' + (l.hw ? l.hw[EN ? 0 : 1] : "") + "</textarea>" +
+      '<div class="lab">' + t("Attendance and marks", "Посещаемость и оценки") + "</div>" +
+      c.pupils.map(function (p) { return '<div class="pup">' + ini(p.name, p.id) + '<span class="grow" style="font-weight:800">' + p.name + '</span><button class="tog ' + (p.abs ? "abs" : "") + '" data-ab="' + p.id + '">' + (p.abs ? t("Absent", "Нет") : t("Here", "Был")) + '</button><div class="gr">' + [2, 3, 4, 5].map(function (v) { return '<button class="g' + v + (p.today === v ? " on" : "") + '" data-gr="' + p.id + ":" + v + '">' + v + "</button>"; }).join("") + "</div></div>"; }).join("") +
+      '<button class="btn" id="save">' + t("Save lesson", "Сохранить урок") + "</button>";
+    $("bg").classList.add("on");
+    $("sheet").querySelectorAll("[data-ab]").forEach(function (b) { b.onclick = function () { var p = cls(l.g).pupils.filter(function (x) { return x.id === +b.dataset.ab; })[0]; p.abs = !p.abs; if (p.abs) p.today = 0; b.className = "tog " + (p.abs ? "abs" : ""); b.textContent = p.abs ? t("Absent", "Нет") : t("Here", "Был"); }; });
+    $("sheet").querySelectorAll("[data-gr]").forEach(function (b) { b.onclick = function () { var a = b.dataset.gr.split(":"), p = cls(l.g).pupils.filter(function (x) { return x.id === +a[0]; })[0], v = +a[1]; p.today = p.today === v ? 0 : v; p.abs = false; var tt = $("fT").value, hh = $("fH").value; l.topicText = [tt, tt]; l.hw = [hh, hh]; sheetLesson(l); }; });
+    $("save").onclick = function () { var tt = $("fT").value.trim(), hh = $("fH").value.trim(); l.topicText = [tt, tt]; l.hw = [hh, hh]; l.done = !!(tt || c.pupils.some(function (p) { return p.today || p.abs; })); $("bg").classList.remove("on"); render(); toast(l.done ? t("Lesson saved. It counts for your pay.", "Урок сохранён и засчитан в зарплату.") : t("Add a topic or attendance first", "Сначала внесите тему или посещаемость")); };
+  }
+  function sheetClass(g) {
+    var c = cls(g);
+    $("sheet").innerHTML = "<h3>" + t("Grade ", "") + g + t("", " класс") + '</h3><div class="sub">' + c.pupils.length + " " + t("pupils", "учеников") + "</div>" + c.pupils.map(function (p) { var a = HIST[p.id]; return '<div class="pup">' + ini(p.name, p.id) + '<span class="grow" style="font-weight:800">' + p.name + "</span>" + a.slice(-3).map(mk).join(" ") + '<b style="width:34px;text-align:right;color:var(--ind)">' + f1(avg(a)) + "</b></div>"; }).join("") + '<button class="btn" id="close">' + t("Close", "Закрыть") + "</button>";
+    $("bg").classList.add("on"); $("close").onclick = function () { $("bg").classList.remove("on"); };
+  }
+  $("bg").onclick = function (e) { if (e.target === $("bg")) $("bg").classList.remove("on"); };
+  function bind() {
+    var m = $("main");
+    m.querySelectorAll("[data-l]").forEach(function (b) { b.onclick = function () { var l = lessons[+b.dataset.l]; if (l.kind === "cancel") { toast(t("This lesson is cancelled", "Этот урок отменён")); return; } sheetLesson(l); }; });
+    m.querySelectorAll("[data-c]").forEach(function (b) { b.onclick = function () { sheetClass(+b.dataset.c); }; });
+    m.querySelectorAll("[data-mc]").forEach(function (b) { b.onclick = function () { mclass = +b.dataset.mc; render(); }; });
+    m.querySelectorAll("[data-cell]").forEach(function (b) { b.onclick = function () { var p = cls(mclass).pupils.filter(function (x) { return x.id === +b.dataset.cell; })[0]; p.today = p.today === 5 ? 0 : (p.today < 2 ? 3 : p.today + 1); render(); }; });
+    m.querySelectorAll("[data-pk]").forEach(function (b) { b.onclick = function () { parentKid = +b.dataset.pk; render(); }; });
+  }
+  render();
+})();
+</script>
+</body></html>
