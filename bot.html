@@ -1,0 +1,113 @@
+<!doctype html>
+<html lang="ru"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<title>Школа: чат-бот</title>
+<style>
+  :root { --bg:#eef2f7; --surface:#fff; --me:#dff3e8; --accent:#0f9d78; --text:#17203a; --text2:#66708a; --border:#dfe5ee; }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { height: 100%; overflow: hidden; overscroll-behavior: none; }
+  body { font-family: system-ui, -apple-system, 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); display: flex; flex-direction: column; font-size: 14.5px; }
+  .head { display: flex; align-items: center; gap: 10px; padding: 10px 14px; background: var(--surface); border-bottom: 1px solid var(--border); }
+  .ava { width: 34px; height: 34px; border-radius: 50%; background: linear-gradient(135deg,#0f9d78,#38c9a0); color: #fff; display: flex; align-items: center; justify-content: center; font-weight: 700; }
+  .head b { display: block; font-size: 14px; } .head span { font-size: 11.5px; color: var(--text2); }
+  .chat { flex: 1; overflow-y: auto; padding: 12px 12px 6px; display: flex; flex-direction: column; gap: 6px; }
+  .msg { max-width: 82%; padding: 8px 11px; border-radius: 14px; line-height: 1.4; white-space: pre-wrap; animation: pop .18s ease-out; }
+  .bot { align-self: flex-start; background: var(--surface); border: 1px solid var(--border); border-bottom-left-radius: 4px; }
+  .me { align-self: flex-end; background: var(--me); border-bottom-right-radius: 4px; }
+  .note { align-self: center; font-size: 11.5px; color: var(--text2); background: rgba(15,157,120,.1); border-radius: 999px; padding: 4px 11px; }
+  .typing { align-self: flex-start; color: var(--text2); font-size: 12px; padding: 2px 6px; }
+  .quick { display: flex; flex-wrap: wrap; gap: 6px; padding: 6px 12px 8px; }
+  .quick button { font: inherit; font-size: 13px; padding: 7px 12px; border-radius: 999px; border: 1px solid var(--accent); background: #fff; color: var(--accent); cursor: pointer; }
+  .quick button:active { background: var(--accent); color: #fff; }
+  form { display: flex; gap: 8px; padding: 8px 12px 12px; background: var(--surface); border-top: 1px solid var(--border); }
+  input { flex: 1; font: inherit; padding: 9px 12px; border: 1px solid var(--border); border-radius: 999px; background: var(--bg); color: var(--text); min-width: 0; }
+  input:focus { outline: none; border-color: var(--accent); }
+  form button { border: 0; width: 38px; height: 38px; border-radius: 50%; background: var(--accent); color: #fff; font-size: 17px; cursor: pointer; }
+  @keyframes pop { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+</style></head>
+<body>
+<div class="head"><div class="ava">Ш</div><div><b id="hName"></b><span id="hSub"></span></div></div>
+<div class="chat" id="chat"></div>
+<div class="quick" id="quick"></div>
+<form id="f"><input id="in" autocomplete="off"><button type="submit" aria-label="send">➤</button></form>
+<script>
+(function () {
+  var ALLOWED = ["https://assist9998.github.io", "http://localhost", "http://127.0.0.1"];
+  if (window.top !== window) {
+    var o = []; try { var ao = window.location.ancestorOrigins; if (ao && ao.length) o = [].slice.call(ao); } catch (e) {}
+    if (!o.length && document.referrer) { try { o = [new URL(document.referrer).origin]; } catch (e) {} }
+    if (o.length && !o.every(function (x) { return ALLOWED.some(function (a) { return x === a || x.indexOf(a + ":") === 0; }); })) { document.documentElement.innerHTML = "<body style='font-family:system-ui;padding:24px;text-align:center'>Демо открывается только на сайте автора.</body>"; return; }
+  }
+  var q = new URLSearchParams(location.search), EN = q.get("lang") === "en";
+  var T = EN ? {
+    name: "School bot", sub: "answers parents · made-up data", ph: "Write a message…",
+    hello: "Hello! I am the school assistant. I can tell you about prices and the timetable, and sign your child up for a trial lesson.",
+    b: { price: "How much does it cost?", sched: "Timetable", trial: "Book a trial lesson", other: "Another question", yes: "Yes, book it", later: "Maybe later", kg: "Kindergarten", sc: "School", d1: "Tomorrow", d2: "Friday", d3: "Next Monday" },
+    price: "Kindergarten is $550 a month, school is $650 a month. The trial lesson is free.",
+    sched: "School lessons run Monday to Friday, 09:00 to 13:40. The kindergarten is open 08:00 to 18:00.",
+    offer: "Would you like to book a free trial lesson?",
+    askDept: "Great! Which one is it for?", askDate: "Which day suits you?",
+    done: function (d, w) { return "Thank you! I booked a trial lesson: " + d + ", " + w + ". The administrator will confirm it here in the chat."; },
+    sent: "Request sent to the administrator",
+    later: "Of course. Write any time, I am here.",
+    other: "Ask me anything about the school.",
+    handoff: "I am not sure I can answer this correctly, so I passed your question to the administrator. They will reply here.",
+    handNote: "Question passed to the administrator",
+    kw: { price: /price|cost|how much|fee/i, sched: /schedule|timetable|hours|time|open/i, trial: /trial|book|sign|enrol|enroll/i }
+  } : {
+    name: "Бот школы", sub: "отвечает родителям · данные выдуманные", ph: "Напишите сообщение…",
+    hello: "Здравствуйте! Я помощник школы. Расскажу про цены и расписание и запишу ребёнка на пробное занятие.",
+    b: { price: "Сколько стоит?", sched: "Расписание", trial: "Записаться на пробное", other: "Другой вопрос", yes: "Да, записать", later: "Позже", kg: "Детский сад", sc: "Школа", d1: "Завтра", d2: "В пятницу", d3: "В понедельник" },
+    price: "Детский сад 32 000 ₽ в месяц, школа 38 000 ₽ в месяц. Пробное занятие бесплатное.",
+    sched: "Уроки в школе с понедельника по пятницу, с 09:00 до 13:40. Детский сад работает с 08:00 до 18:00.",
+    offer: "Хотите записаться на бесплатное пробное занятие?",
+    askDept: "Отлично! Для кого запись?", askDate: "Какой день вам удобен?",
+    done: function (d, w) { return "Спасибо! Записал на пробное занятие: " + d + ", " + w + ". Администратор подтвердит запись здесь, в чате."; },
+    sent: "Заявка отправлена администратору",
+    later: "Конечно. Пишите в любое время, я на связи.",
+    other: "Спрашивайте о чём угодно по школе.",
+    handoff: "Не уверен, что отвечу правильно, поэтому передал ваш вопрос администратору. Он ответит здесь же.",
+    handNote: "Вопрос передан администратору",
+    kw: { price: /цен|стоим|сколько|оплат/i, sched: /расписан|график|врем|во сколько|работает/i, trial: /пробн|запис|записат/i }
+  };
+  document.documentElement.lang = EN ? "en" : "ru";
+  document.getElementById("hName").textContent = T.name; document.getElementById("hSub").textContent = T.sub;
+  var inp = document.getElementById("in"); inp.placeholder = T.ph;
+  var chat = document.getElementById("chat"), quick = document.getElementById("quick");
+  var offered = false, busy = false, dept = "";
+  function el(cls, text) { var d = document.createElement("div"); d.className = cls; d.textContent = text; chat.appendChild(d); chat.scrollTop = chat.scrollHeight; return d; }
+  function wait(ms) { return new Promise(function (r) { setTimeout(r, ms); }); }
+  function setQuick(list) {
+    quick.innerHTML = "";
+    list.forEach(function (it) { var b = document.createElement("button"); b.type = "button"; b.textContent = it[0]; b.onclick = function () { if (!busy) { say(it[0]); it[1](); } }; quick.appendChild(b); });
+  }
+  function say(text) { el("msg me", text); setQuick([]); }
+  async function bot(text, note) {
+    busy = true; var t = el("typing", EN ? "typing…" : "печатает…"); await wait(650); t.remove();
+    el("msg bot", text); if (note) el("note", note); busy = false;
+  }
+  var menu = function () { return [[T.b.price, askPrice], [T.b.sched, askSched], [T.b.trial, startTrial], [T.b.other, askOther]]; };
+  async function askPrice() { await bot(T.price); setQuick(menu()); }
+  async function askSched() {
+    await bot(T.sched);
+    if (!offered) { offered = true; await bot(T.offer); setQuick([[T.b.yes, startTrial], [T.b.later, async function () { await bot(T.later); setQuick(menu()); }]]); }
+    else setQuick(menu());
+  }
+  async function startTrial() { await bot(T.askDept); setQuick([[T.b.kg, function () { pickDate(T.b.kg); }], [T.b.sc, function () { pickDate(T.b.sc); }]]); }
+  async function pickDate(d) { dept = d; await bot(T.askDate); setQuick([[T.b.d1, function () { finish(T.b.d1); }], [T.b.d2, function () { finish(T.b.d2); }], [T.b.d3, function () { finish(T.b.d3); }]]); }
+  async function finish(day) { await bot(T.done(day.toLowerCase(), dept.toLowerCase()), T.sent); setQuick(menu()); }
+  async function askOther() { await bot(T.other); setQuick([]); }
+  async function free(text) {
+    if (T.kw.trial.test(text)) return startTrial();
+    if (T.kw.price.test(text)) return askPrice();
+    if (T.kw.sched.test(text)) return askSched();
+    await bot(T.handoff, T.handNote); setQuick(menu());
+  }
+  document.getElementById("f").onsubmit = function (e) {
+    e.preventDefault(); var v = inp.value.trim(); if (!v || busy) return; inp.value = ""; say(v); free(v);
+  };
+  (async function () { await bot(T.hello); setQuick(menu()); })();
+})();
+</script>
+</body></html>
