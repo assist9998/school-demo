@@ -68,8 +68,9 @@ const STAFF_EN = { 1: "Helen Brooks", 2: "Maria Lopez", 3: "Emily Carter", 4: "A
 // Ставки: в русской версии рубли, в английской доллары.
 const RATES = {
   ru: { 1: [90000], 2: [75000], 3: [null, 700], 4: [null, 700], 5: [null, 650], 6: [60000], 7: [40000, 500, 800], 8: [1800], 9: [null, 650], 12: [58000], 13: [1700], 14: [72000], 15: [150000], perPupilClass: 4500, perPupilSubject: 3500, subRef: 90000, nannyRef: 1800, overtime: 300 },
-  en: { 1: [1500], 2: [1250], 3: [null, 12], 4: [null, 12], 5: [null, 11], 6: [1000], 7: [650, 8, 13], 8: [30], 9: [null, 11], 12: [950], 13: [28], 14: [1200], 15: [2500], perPupilClass: 75, perPupilSubject: 58, subRef: 1500, nannyRef: 30, overtime: 5 },
+  en: null,
 };
+RATES.en = RATES.ru;
 const rate = (id, i) => { const r = RATES[LANG][id]; return r && r[i] !== undefined ? r[i] : null; };
 
 const SAD_GROUPS = {
@@ -175,7 +176,7 @@ function buildChildren(rnd, today) {
     const k = {
       id, name, dob: fmtDmy(dob), city, dept, group, type, until, parent, telegram_id: "",
       allergy: rnd() < 0.12 ? (isEn() ? ["Citrus", "Nuts", "Lactose", "Eggs"] : ["Цитрусовые", "Орехи", "Лактоза", "Яйца"])[Math.floor(rnd() * 4)] : "Нет",
-      date_start: "01.09.2026", cost: isEn() ? (dept === SAD ? "550" : "650") : (dept === SAD ? "32000" : "38000"), payment_date: "",
+      date_start: "01.09.2026", cost: dept === SAD ? "32000" : "38000", payment_date: "",
       payment_status: "Оплачено", status: "Активный",
     };
     kids.push(k); id++;
@@ -416,7 +417,7 @@ const uName = u => u[LANG][0];
 const uLabel = u => u[LANG][1];
 
 const fmtNum = n => String(Math.round(n)).replace(/\B(?=(\d{3})+(?!\d))/g, isEn() ? "," : " ");
-const money = n => isEn() ? "$" + fmtNum(n) : fmtNum(n) + " ₽";
+const money = n => fmtNum(n) + (isEn() ? " c.u." : " у. е.");
 const T = (ru, en) => isEn() ? en : ru;
 const weekdaysIn = (y, m) => { let n = 0; const last = new Date(y, m, 0).getDate(); for (let d = 1; d <= last; d++) { const w = new Date(y, m - 1, d).getDay(); if (w !== 0 && w !== 6) n++; } return n; };
 
@@ -946,7 +947,7 @@ function createApi(ctx) {
 const EN_RULES = [
   [/(\d+)([АБ]?) класс(?:а|е|ы|ов)?/g, (m, n, l) => "Grade " + n + (l === "А" ? "A" : l === "Б" ? "B" : "")],
   [/(\d) триместр/g, "Term $1"],
-  [/(\d[\d\s  ]*\d|\d)\s?₽/g, (m, n) => "$" + n.replace(/[\s  ]/g, ",")],
+  [/(\d[\d\s\u00a0\u202f]*\d|\d)\s?у\. е\./g, (m, n) => n.replace(/[\s\u00a0\u202f]/g, ",") + " c.u."],
   [/(\d+) (?:лет|года|год)(?![А-Яа-яЁё])/g, "$1 y.o."],
   [/(\d+) (?:учеников|ученика|ученик)(?![А-Яа-яЁё])/g, (m, n) => n + (n === "1" ? " pupil" : " pupils")],
   [/(\d+) (?:дней|дня|день)(?![А-Яа-яЁё])/g, (m, n) => n + (n === "1" ? " day" : " days")],
@@ -956,7 +957,7 @@ const EN_RULES = [
   [/(\d+) (?:детей|ребёнка|ребёнок)(?![А-Яа-яЁё])/g, (m, n) => n + (n === "1" ? " child" : " children")],
   [/(\d+)у(?![А-Яа-яЁё])/g, "$1L"],
   [/(\d+) ?ч(?![А-Яа-яЁё])/g, "$1 h"],
-  [/₽/g, "$"],
+  [/у\. е\./g, "c.u."],
 ];
 
 const EN_DICT = {
@@ -1071,7 +1072,7 @@ function makeTranslator() {
   const esc = k => k.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
   const re = new RegExp("(?<![А-Яа-яЁё])(" + keys.map(esc).join("|") + ")(?![А-Яа-яЁё])", "g");
   return function (s) {
-    if (!s || !/[А-Яа-яЁё₽]/.test(s)) return s;
+    if (!s || !/[А-Яа-яЁё]/.test(s)) return s;
     for (const [r, f] of EN_RULES) s = s.replace(r, f);
     return s.replace(re, m => EN_DICT[m]);
   };
@@ -1084,7 +1085,7 @@ function installTranslator(win) {
   const fixEl = el => { ATTRS.forEach(a => { const v = el.getAttribute && el.getAttribute(a); if (v) { const t = tr(v); if (t !== v) el.setAttribute(a, t); } }); };
   let seen = null; // в пределах одной пачки изменений каждый узел обходим один раз
   const walk = root => {
-    if (root.nodeType === 3) { const pn = root.parentNode; if (pn && (pn.nodeName === "SCRIPT" || pn.nodeName === "STYLE")) return; const v = root.nodeValue; if (/[А-Яа-яЁё₽]/.test(v)) { const t = tr(v); if (t !== v) root.nodeValue = t; } return; }
+    if (root.nodeType === 3) { const pn = root.parentNode; if (pn && (pn.nodeName === "SCRIPT" || pn.nodeName === "STYLE")) return; const v = root.nodeValue; if (/[А-Яа-яЁё]/.test(v)) { const t = tr(v); if (t !== v) root.nodeValue = t; } return; }
     if (root.nodeType !== 1 || root.tagName === "SCRIPT" || root.tagName === "STYLE" || root.id === "demoSwitcher") return;
     if (seen) { if (seen.has(root)) return; seen.add(root); }
     fixEl(root);

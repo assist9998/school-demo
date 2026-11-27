@@ -235,7 +235,7 @@ html[data-demo-design="strict"] .header-title{letter-spacing:.02em;text-transfor
 html[data-demo-design="strict"] .nav{box-shadow:none}
 html[data-demo-design="emerald"] .nav{box-shadow:0 -4px 18px rgba(0,0,0,.06)}
 </style>
-<script src="mock.js?v=1795779392"></script>
+<script src="mock.js?v=1795779745"></script>
 </head>
 <body>
 
@@ -680,14 +680,14 @@ html[data-demo-design="emerald"] .nav{box-shadow:0 -4px 18px rgba(0,0,0,.06)}
     </select>
   </div>
   <div style="margin-bottom:20px" id="s_monthly_rate_group">
-    <div style="font-size:11px;font-weight:600;color:var(--text2);text-transform:uppercase;margin-bottom:6px" id="s_rate_label">Ставка в месяц (₽)</div>
+    <div style="font-size:11px;font-weight:600;color:var(--text2);text-transform:uppercase;margin-bottom:6px" id="s_rate_label">Ставка в месяц (у. е.)</div>
     <input id="s_monthly_rate" type="number" inputmode="numeric" placeholder="60000" style="width:100%;padding:10px 14px;border-radius:10px;border:1.5px solid var(--border);background:var(--surface2);color:var(--text);font-family:inherit;font-size:14px;outline:none">
   </div>
   <div style="margin-bottom:20px;display:none" id="s_class_size_note">
-    <div style="font-size:12px;color:var(--text2);background:var(--surface2);border-radius:10px;padding:10px 14px;line-height:1.4">Ставка считается автоматически: класс берётся из расписания в Журнале, число учеников — из списка детей. 2 уч.→8, 3→11, 4→14, 5→17, 6+→20 млн ₽/мес.</div>
+    <div style="font-size:12px;color:var(--text2);background:var(--surface2);border-radius:10px;padding:10px 14px;line-height:1.4">Ставка считается автоматически: класс берётся из расписания в Журнале, число учеников — из списка детей. 2 уч.→8, 3→11, 4→14, 5→17, 6+→20 млн у. е./мес.</div>
   </div>
   <div style="margin-bottom:20px;display:none" id="s_lesson_rate_group">
-    <div style="font-size:11px;font-weight:600;color:var(--text2);text-transform:uppercase;margin-bottom:6px">Ставка за урок (₽)</div>
+    <div style="font-size:11px;font-weight:600;color:var(--text2);text-transform:uppercase;margin-bottom:6px">Ставка за урок (у. е.)</div>
     <input id="s_lesson_rate" type="number" inputmode="numeric" placeholder="700" style="width:100%;padding:10px 14px;border-radius:10px;border:1.5px solid var(--border);background:var(--surface2);color:var(--text);font-family:inherit;font-size:14px;outline:none">
   </div>
   <div style="margin-bottom:20px;display:grid;grid-template-columns:1fr 1fr;gap:10px">
@@ -701,11 +701,11 @@ html[data-demo-design="emerald"] .nav{box-shadow:0 -4px 18px rgba(0,0,0,.06)}
     </div>
   </div>
   <div style="margin-bottom:20px">
-    <div style="font-size:11px;font-weight:600;color:var(--text2);text-transform:uppercase;margin-bottom:6px">Ставка за продлёнку (₽/день)</div>
+    <div style="font-size:11px;font-weight:600;color:var(--text2);text-transform:uppercase;margin-bottom:6px">Ставка за продлёнку (у. е./день)</div>
     <input id="s_extended_day_rate" type="number" inputmode="numeric" placeholder="200000" style="width:100%;padding:10px 14px;border-radius:10px;border:1.5px solid var(--border);background:var(--surface2);color:var(--text);font-family:inherit;font-size:14px;outline:none">
   </div>
   <div style="margin-bottom:20px">
-    <div style="font-size:11px;font-weight:600;color:var(--text2);text-transform:uppercase;margin-bottom:6px">Ставка за переработку (₽/час)</div>
+    <div style="font-size:11px;font-weight:600;color:var(--text2);text-transform:uppercase;margin-bottom:6px">Ставка за переработку (у. е./час)</div>
     <input id="s_overtime_rate" type="number" inputmode="numeric" placeholder="190000" style="width:100%;padding:10px 14px;border-radius:10px;border:1.5px solid var(--border);background:var(--surface2);color:var(--text);font-family:inherit;font-size:14px;outline:none">
     <div style="font-size:11px;color:var(--text2);margin-top:5px">Необязательно — фикс. доплата за день, если задержался дольше обычного</div>
   </div>
@@ -3349,7 +3349,7 @@ function renderSalarySummaryModal() {
         '<div><div style="font-size:13.5px;font-weight:500">' + escapeHtml(r.name) + '</div>' +
         '<div style="font-size:11px;color:var(--text2)">' + escapeHtml([r.city, r.position].filter(Boolean).join(" · ")) + '</div></div>' +
         '<div style="display:flex;align-items:center;gap:6px;flex-shrink:0;margin-left:10px">' +
-          '<div style="font-size:13.5px;font-weight:600;white-space:nowrap">' + r.salary.toLocaleString('ru-RU') + ' ₽</div>' +
+          '<div style="font-size:13.5px;font-weight:600;white-space:nowrap">' + r.salary.toLocaleString('ru-RU') + ' у. е.</div>' +
           '<span class="child-arrow">›</span>' +
         '</div>' +
       '</div>'
@@ -3359,7 +3359,7 @@ function renderSalarySummaryModal() {
   const total =
     '<div style="display:flex;justify-content:space-between;align-items:center;padding:14px 0 4px;margin-top:4px">' +
       '<div style="font-size:14px;font-weight:700">Итого (' + rows.length + ')</div>' +
-      '<div style="font-size:16px;font-weight:800;color:var(--accent2)">' + data.total.toLocaleString('ru-RU') + ' ₽</div>' +
+      '<div style="font-size:16px;font-weight:800;color:var(--accent2)">' + data.total.toLocaleString('ru-RU') + ' у. е.</div>' +
     '</div>';
 
   document.getElementById("modalContent").innerHTML = header + list + total;
@@ -3407,7 +3407,7 @@ function renderStaffList() {
   filtered.forEach(s => {
     const initials = s.name.split(" ").map(w => w[0]).join("").slice(0,2);
     const rate = (s.pay_type === "by_class_size" || s.pay_type === "by_student_count") ? "по числу учеников"
-      : s.monthly_rate ? Number(s.monthly_rate).toLocaleString('ru-RU') + (s.pay_type === "per_shift" ? " ₽/смену" : " ₽/мес") : "";
+      : s.monthly_rate ? Number(s.monthly_rate).toLocaleString('ru-RU') + (s.pay_type === "per_shift" ? " у. е./смену" : " у. е./мес") : "";
     html += `<div class="child-list-item" onclick="openStaffCalendar('${s.id}')">
       <div class="avatar">${initials}</div>
       <div class="child-detail">
@@ -5666,10 +5666,10 @@ function updatePayTypeLabel() {
   document.getElementById("s_lesson_rate_group").style.display = isPerLesson ? "" : "none";
   document.getElementById("s_class_size_note").style.display = isClassSize ? "" : "none";
   document.getElementById("s_class_size_note").querySelector("div").textContent = payType === "by_student_count"
-    ? "Ставка считается автоматически: классы берутся из расписания в Журнале, число учеников — из списка детей. 2 000 000 ₽/мес за каждого ученика во всех его классах (сколько бы предметов он ему ни вёл)."
-    : "Ставка считается автоматически: класс(ы) берутся из расписания в Журнале, число учеников — из списка детей. 2 уч.→8, 3→11, 4→14, 5→17, 6+→20 млн ₽/мес за каждый класс (если классов несколько — суммируются).";
+    ? "Ставка считается автоматически: классы берутся из расписания в Журнале, число учеников — из списка детей. 2 000 000 у. е./мес за каждого ученика во всех его классах (сколько бы предметов он ему ни вёл)."
+    : "Ставка считается автоматически: класс(ы) берутся из расписания в Журнале, число учеников — из списка детей. 2 уч.→8, 3→11, 4→14, 5→17, 6+→20 млн у. е./мес за каждый класс (если классов несколько — суммируются).";
   document.getElementById("s_rate_label").textContent =
-    payType === "per_shift" ? "Ставка за смену (₽)" : "Ставка в месяц (₽)";
+    payType === "per_shift" ? "Ставка за смену (у. е.)" : "Ставка в месяц (у. е.)";
 }
 
 function clearStaffForm() {
@@ -6583,7 +6583,7 @@ function renderStaffCalendarModal() {
           '<span style="color:var(--text2);display:flex;align-items:center;gap:6px">ЗП за месяц' +
             '<span style="transition:transform .15s;transform:rotate(' + (window._staffSalaryExpanded ? '180deg' : '0deg') + ');color:var(--text2);font-size:11px">▾</span>' +
           '</span>' +
-          '<b style="color:var(--accent2)">' + sal.salary.toLocaleString('ru-RU') + ' ₽</b>' +
+          '<b style="color:var(--accent2)">' + sal.salary.toLocaleString('ru-RU') + ' у. е.</b>' +
         '</div>' +
         (window._staffSalaryExpanded && Array.isArray(sal.breakdown)
           ? '<div style="margin-top:10px;padding-top:10px;border-top:1px solid var(--border)">' +
