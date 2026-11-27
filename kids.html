@@ -108,7 +108,7 @@
     { n: "Made Surya", r: ["Driver", "Водитель"], f: "🚐", s: "in", days: 14, late: 0, leave: 0 },
     { n: "Olga Ivanova", r: ["Teacher", "Педагог"], f: "👩‍🎨", s: "in", days: 12, late: 0, leave: 2 },
     { n: "Kadek Ayu", r: ["Cook", "Повар"], f: "🧑‍🍳", s: "off", days: 11, late: 0, leave: 3 },
-    { n: "Tom Reeves", r: ["Coach", "Тренер"], f: "🏃", s: "in", days: 9, late: 1, leave: 0 },
+    { n: "Tessa Reeves", r: ["Coach", "Тренер"], f: "🏃", s: "in", days: 9, late: 1, leave: 0 },
   ];
   var LEAVES = [["Kadek Ayu", "16 Nov", "Ceremony day", "Церемония"], ["Olga Ivanova", "20 Nov", "Day off", "Отгул"]];
   var POSTS = [
@@ -122,6 +122,7 @@
   var TABS = [["today", "Today", "Сегодня"], ["kids", "Kids", "Дети"], ["pay", "Payments", "Оплаты"], ["staff", "Team", "Команда"], ["feed", "Feed", "Лента"]];
   // Фото лежат в kids/kid-N.jpg; если файла нет, остаётся эмодзи.
   function ph(k, size) { return '<span class="ph s' + size + '">' + k.face + '<img src="kids/kid-' + k.id + '.jpg" alt="" loading="lazy" onerror="this.remove()"></span>'; }
+  function phs(s, i, size) { return '<span class="ph s' + size + '">' + s.f + '<img src="kids/staff-' + i + '.jpg" alt="" loading="lazy" onerror="this.remove()"></span>'; }
   function gname(i) { return t(GROUPS[i][0], GROUPS[i][1]); }
   function toast(m) { var e = $("toast"); e.textContent = m; e.style.display = "block"; clearTimeout(toast.t); toast.t = setTimeout(function () { e.style.display = "none"; }, 1600); }
   $("date").textContent = t("Friday, 13 November", "Пятница, 13 ноября");
@@ -164,7 +165,7 @@
   var SS = ["in", "late", "off"];
   function vStaff() {
     var sl = { in: [t("On site", "На месте"), "ok"], late: [t("Late", "Опоздал(а)"), "warn"], off: [t("Off", "Выходной"), "bad"] };
-    return '<h2 style="margin-top:4px">' + t("Today", "Сегодня") + "</h2>" + '<div class="card">' + staff.map(function (s, i) { return '<div class="st" data-s="' + i + '" style="cursor:pointer"><div class="av">' + s.f + '</div><div class="grow"><b>' + s.n + '</b><div style="color:var(--mute);font-weight:700;font-size:12.5px">' + t(s.r[0], s.r[1]) + '</div></div><span class="pill ' + sl[s.s][1] + '">' + sl[s.s][0] + "</span></div>"; }).join("") + "</div>" +
+    return '<h2 style="margin-top:4px">' + t("Today", "Сегодня") + "</h2>" + '<div class="card">' + staff.map(function (s, i) { return '<div class="st" data-s="' + i + '" style="cursor:pointer"><div class="av">' + phs(s, i, 40) + '</div><div class="grow"><b>' + s.n + '</b><div style="color:var(--mute);font-weight:700;font-size:12.5px">' + t(s.r[0], s.r[1]) + '</div></div><span class="pill ' + sl[s.s][1] + '">' + sl[s.s][0] + "</span></div>"; }).join("") + "</div>" +
       "<h2>" + t("Planned days off", "Запланированные отгулы") + "</h2>" + '<div class="card">' + LEAVES.map(function (l) { return '<div class="st"><span style="font-size:20px">🗓️</span><div class="grow"><b>' + l[0] + '</b><div style="color:var(--mute);font-weight:700;font-size:12.5px">' + l[1] + " · " + t(l[2], l[3]) + "</div></div></div>"; }).join("") + "</div>" +
       "<h2>" + t("November summary", "Сводка за ноябрь") + "</h2>" + '<div class="card">' + staff.map(function (s) { return '<div class="st"><div class="grow"><b>' + s.n + '</b><div class="bar" style="margin-top:6px"><i style="width:' + Math.min(100, s.days / 14 * 100) + '%"></i></div></div><div style="text-align:right;font-weight:800;font-size:12.5px">' + s.days + " " + t("days", "дн.") + '<div style="color:var(--mute)">' + s.late + " " + t("late", "опозд.") + " · " + s.leave + " " + t("off", "выходн.") + "</div></div></div>"; }).join("") + "</div>";
   }
