@@ -65,7 +65,7 @@ const SUBJ_TOPICS_EN = {
 };
 const HOMEWORK_EN = ["Page 24, exercises 3–5", "Learn the rule and do exercise 2", "Read the text and answer the questions", "Workbook, page 12", "Review the times tables", "Bring a drawing on today's topic", "Learn 5 new words", "Handwriting book, page 8", "Prepare a retelling", "No homework"];
 const STAFF_EN = { 1: "Helen Brooks", 2: "Maria Lopez", 3: "Emily Carter", 4: "Andrew Collins", 5: "Natalie Ross", 6: "Olivia Bennett", 7: "Sophie Hayes", 8: "Anna Fisher", 9: "Dennis Walsh", 10: "Tanya Bell", 11: "Paul Nicholson", 12: "Julia Price", 13: "Vera Holt", 14: "Sergio Andrade", 15: "David Allen" };
-// Ставки: в русской версии рубли, в английской доллары.
+// Ставки в условных единицах, одинаковые в обеих версиях.
 const RATES = {
   ru: { 1: [90000], 2: [75000], 3: [null, 700], 4: [null, 700], 5: [null, 650], 6: [60000], 7: [40000, 500, 800], 8: [1800], 9: [null, 650], 12: [58000], 13: [1700], 14: [72000], 15: [150000], perPupilClass: 4500, perPupilSubject: 3500, subRef: 90000, nannyRef: 1800, overtime: 300 },
   en: null,
