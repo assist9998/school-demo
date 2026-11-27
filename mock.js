@@ -1,10 +1,10 @@
 (function () {
 "use strict";
-// ── Данные демо «Школа Пример». Все люди и названия выдуманные. ─────────
+// ── Данные демо «Школа». Все люди и названия выдуманные. ─────────
 // Даты считаются от «сегодня» (todayDemo), так что в демо всегда есть уроки
 // на сегодня, свежие оценки, темы и посещаемость.
 
-const C1 = "Центральный", C2 = "Северный";
+const C1 = "Филиал 1", C2 = "Филиал 2";
 const SAD = "Детский сад", SCH = "Школа";
 
 const p2 = n => String(n).padStart(2, "0");
@@ -927,7 +927,22 @@ function pickRole(page) {
   return r;
 }
 
+const EMBED_ALLOWED = ["https://assist9998.github.io", "http://localhost", "http://127.0.0.1"];
+function embedAllowed(win) {
+  if (win.top === win) return true;
+  let origins = [];
+  try { const ao = win.location.ancestorOrigins; if (ao && ao.length) origins = Array.prototype.slice.call(ao); } catch (e) {}
+  if (!origins.length && win.document.referrer) { try { origins = [new URL(win.document.referrer).origin]; } catch (e) {} }
+  if (!origins.length) return true; // браузер не сообщил, кто встроил (без referrer) — не мешаем
+  return origins.every(o => EMBED_ALLOWED.some(a => o === a || o.indexOf(a + ":") === 0));
+}
+
 function browserInit(win) {
+  if (!embedAllowed(win)) {
+    try { win.stop(); } catch (e) {}
+    win.document.documentElement.innerHTML = '<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"></head><body style="margin:0;display:flex;min-height:100vh;align-items:center;justify-content:center;background:#0b0d12;color:#fff;font-family:system-ui,sans-serif;text-align:center;padding:24px"><div>Демо открывается только на сайте автора.<br><br><a style="color:#7fb0ff" href="https://assist9998.github.io/demo.html#school" target="_top">Открыть демо</a></div></body>';
+    return;
+  }
   // Открыто на компьютере отдельной вкладкой: показываем в рамке телефона (внутри iframe рамка не нужна).
   if (win.top === win && win.innerWidth > 700) {
     const file = (win.location.pathname.split("/").pop() || "index.html") + (win.location.search || "");
@@ -1043,7 +1058,7 @@ if (typeof window !== "undefined" && typeof document !== "undefined") {
   browserInit(window);
 }
 if (typeof module !== "undefined" && module.exports) {
-  module.exports = { seedState, createApi, USERS, pickDemoDate, isSchoolDay, fmtDmy, parseDmy, C1, C2, SAD, SCH, lessonsTaught };
+  module.exports = { embedAllowed, seedState, createApi, USERS, pickDemoDate, isSchoolDay, fmtDmy, parseDmy, C1, C2, SAD, SCH, lessonsTaught };
 }
 
 })();

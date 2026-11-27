@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 
 <meta name="referrer" content="no-referrer">
-<title>Школа Пример — Посещаемость</title>
+<title>Школа — Посещаемость</title>
 
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Geologica:wght@300;400;500;600;700&display=swap');
@@ -200,6 +200,8 @@
   .trial-meta{font-size:12px;color:var(--text2)}
   .back-btn{display:flex;align-items:center;gap:6px;background:none;border:none;color:var(--text2);font-family:inherit;font-size:14px;cursor:pointer;padding:0;margin-bottom:14px}
 </style>
+<meta name="robots" content="noindex,nofollow">
+<style>html,body{overflow-x:hidden;max-width:100%;overscroll-behavior-x:none}.screen{max-width:100%;overflow-x:hidden}</style>
 <script src="mock.js"></script>
 </head>
 <body>
@@ -221,7 +223,7 @@
 <div class="header" style="justify-content:center">
   <div class="header-title" onclick="toggleTheme()" style="font-size:20px;display:flex;align-items:center;gap:8px;cursor:pointer">
     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M22 10L12 5 2 10l10 5 10-5z"/><path d="M6 12v5c0 1.5 3 3 6 3s6-1.5 6-3v-5"/></svg>
-    Школа Пример
+    Школа
   </div>
 </div>
 
@@ -496,8 +498,8 @@
       <div>
         <div style="font-size:11px;font-weight:600;color:var(--text2);text-transform:uppercase;margin-bottom:6px">Город *</div>
         <select id="f_city" onchange="updateGroupOptions()" style="width:100%;padding:10px 14px;border-radius:10px;border:1.5px solid var(--border);background:var(--surface2);color:var(--text);font-family:inherit;font-size:14px">
-          <option value="Центральный">Центральный</option>
-          <option value="Северный">Северный</option>
+          <option value="Филиал 1">Филиал 1</option>
+          <option value="Филиал 2">Филиал 2</option>
         </select>
       </div>
       <div>
@@ -600,8 +602,8 @@
   <div style="margin-bottom:12px">
     <div style="font-size:11px;font-weight:600;color:var(--text2);text-transform:uppercase;margin-bottom:6px">Город *</div>
     <select id="s_city" style="width:100%;padding:10px 14px;border-radius:10px;border:1.5px solid var(--border);background:var(--surface2);color:var(--text);font-family:inherit;font-size:14px">
-      <option value="Центральный">Центральный</option>
-      <option value="Северный">Северный</option>
+      <option value="Филиал 1">Филиал 1</option>
+      <option value="Филиал 2">Филиал 2</option>
       <option value="">Оба филиала</option>
     </select>
     <div style="font-size:11px;color:var(--text2);margin-top:4px">"Оба филиала" — для админов, которым нужен доступ ко всем городам. Для учителя с реальными уроками в журнале выбирайте конкретный город — иначе его уроки перестанут считаться автоматически.</div>
@@ -640,8 +642,8 @@
       <option value="monthly_fixed">Месячный фикс</option>
       <option value="per_shift">За смену</option>
       <option value="per_lesson">За урок</option>
-      <option value="by_class_size">Кл. руководитель, Северный (по числу учеников)</option>
-      <option value="by_student_count">Предметник, Северный (по числу учеников)</option>
+      <option value="by_class_size">Кл. руководитель, Филиал 2 (по числу учеников)</option>
+      <option value="by_student_count">Предметник, Филиал 2 (по числу учеников)</option>
     </select>
   </div>
   <div style="margin-bottom:20px" id="s_monthly_rate_group">
@@ -1493,7 +1495,7 @@ function renderAttFilters() {
   cities.forEach(city => {
     const btn = document.createElement("button");
     btn.className = "filter-btn" + (city === activeCity ? " active" : "");
-    btn.textContent = (city === "Центральный" ? "" : "") + city;
+    btn.textContent = (city === "Филиал 1" ? "" : "") + city;
     btn.onclick = () => {
       activeCity = city;
       const d = [...new Set(children.filter(c => c.city === city && c.dept !== "Школа").map(c => c.dept))];
@@ -1709,7 +1711,7 @@ function renderChildList() {
   cities.forEach(city => {
     const btn = document.createElement("button");
     btn.className = "filter-btn" + (city === activeChildCity ? " active" : "");
-    btn.textContent = (city === "Центральный" ? "" : "") + city;
+    btn.textContent = (city === "Филиал 1" ? "" : "") + city;
     btn.onclick = () => {
       activeChildCity = city;
       activeChildDept = "";
@@ -2102,18 +2104,18 @@ function showToast(msg, warn=false) {
 }
 
 const GROUPS = {
-  "Центральный": {
+  "Филиал 1": {
     "Детский сад": ["Младшая", "Старшая", "Подготовительная (младшая)", "Подготовительная (старшая)"],
     "Школа": ["1 класс","1А класс","1Б класс","2 класс","3 класс","4 класс","5 класс","6 класс","7 класс","8 класс"]
   },
-  "Северный": {
+  "Филиал 2": {
     "Детский сад": ["Ясельная","Младшая","Старшая"],
     "Школа": ["1 класс","2 класс","3 класс","4 класс","5 класс","6 класс","7 класс","8 класс","9 класс"]
   }
 };
 
 function updateGroupOptions(selectedGroup) {
-  const city = document.getElementById("f_city")?.value || "Центральный";
+  const city = document.getElementById("f_city")?.value || "Филиал 1";
   const dept = document.getElementById("f_dept")?.value || "Детский сад";
   const sel = document.getElementById("f_group");
   if(!sel) return;
@@ -2763,7 +2765,7 @@ function openEditForm(id) {
   document.getElementById("f_name").value = nameParts.name;
   document.getElementById("f_surname").value = nameParts.surname;
   document.getElementById("f_dob").value = c.dob || "";
-  document.getElementById("f_city").value = c.city || "Центральный";
+  document.getElementById("f_city").value = c.city || "Филиал 1";
   document.getElementById("f_dept").value = c.dept || "Детский сад";
   updateGroupOptions(c.group || "");
   document.getElementById("f_type").value = c.type || "Полный";
@@ -2903,7 +2905,7 @@ async function generateParentLinkCode() {
         '<button type="button" onclick="copyParentLink(\'' + data.link + '\')" class="btn-primary" style="width:100%;margin-bottom:14px">📋 Скопировать ссылку</button>' +
         '<div style="font-size:13px;color:var(--text2);line-height:1.5">Отправьте эту ссылку родителю (WhatsApp, SMS — куда угодно). Родителю достаточно её открыть, вводить ничего не нужно.<br><br>Ссылка одноразовая и действует 24 часа.</div>'
       : '<div style="font-size:36px;font-weight:700;letter-spacing:.1em;color:var(--accent);margin-bottom:14px">' + data.code + '</div>' +
-        '<div style="font-size:13px;color:var(--text2);line-height:1.5">Не удалось собрать ссылку — попросите родителя открыть бота Школа Пример в Telegram и отправить код сообщением <b>/start ' + data.code + '</b>.<br><br>Код действует 24 часа и одноразовый.</div>';
+        '<div style="font-size:13px;color:var(--text2);line-height:1.5">Не удалось собрать ссылку — попросите родителя открыть бота Школа в Telegram и отправить код сообщением <b>/start ' + data.code + '</b>.<br><br>Код действует 24 часа и одноразовый.</div>';
     document.getElementById("modalContent").innerHTML = '<div style="text-align:center;padding:10px 0">' + linkBlock + '</div>';
     document.getElementById("modalOverlay").classList.add("show");
   } catch(e) {
@@ -3136,7 +3138,7 @@ function fillFromTrial(idx) {
   const nameParts = splitFullName(t.child_name);
   document.getElementById("f_name").value = nameParts.name;
   document.getElementById("f_surname").value = nameParts.surname;
-  document.getElementById("f_city").value = t.city || "Центральный";
+  document.getElementById("f_city").value = t.city || "Филиал 1";
   document.getElementById("f_dept").value = t.dept || "Детский сад";
   updateGroupOptions();
   document.getElementById("f_parent").value = t.parent || "";
@@ -3444,7 +3446,7 @@ function openTeacherSubstitutionBrowse() {
 }
 
 function journalCities() {
-  return (staffInfo && staffInfo.city) ? [staffInfo.city] : ["Центральный", "Северный"];
+  return (staffInfo && staffInfo.city) ? [staffInfo.city] : ["Филиал 1", "Филиал 2"];
 }
 
 let journalClassSubjectCounts = {};
@@ -4044,7 +4046,7 @@ const SCHOOL_HOLIDAYS = [
   [dmyToDate("08.03.2027"), dmyToDate("14.03.2027")],
 ];
 const SCHOOL_HOLIDAYS_BY_CITY = {
-  "Центральный": [
+  "Филиал 1": [
     [dmyToDate("16.11.2026"), dmyToDate("22.11.2026")],
     [dmyToDate("30.12.2026"), dmyToDate("10.01.2027")],
     [dmyToDate("08.03.2027"), dmyToDate("14.03.2027")],
@@ -4951,7 +4953,7 @@ const JOURNAL_QUARTER_RANGES = {
   "Год": { from: "01.09.2026", to: "25.05.2027" },
 };
 const JOURNAL_QUARTER_RANGES_BY_CITY = {
-  "Центральный": {
+  "Филиал 1": {
     "1 триместр": { from: "01.09.2026", to: "15.11.2026" },
     "2 триместр": { from: "23.11.2026", to: "07.03.2027" },
   },
@@ -5603,7 +5605,7 @@ function openEditStaffForm(id) {
   document.getElementById("s_name").value = nameParts.name;
   document.getElementById("s_surname").value = nameParts.surname;
   document.getElementById("s_patronymic").value = nameParts.patronymic;
-  document.getElementById("s_city").value = s.city || "Центральный";
+  document.getElementById("s_city").value = s.city || "Филиал 1";
   const posSelect = document.getElementById("s_position");
   if(s.position && ![...posSelect.options].some(o => o.value === s.position)) {
     posSelect.appendChild(new Option(s.position, s.position));

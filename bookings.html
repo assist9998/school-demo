@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <meta name="referrer" content="no-referrer">
-<title>Школа Пример — Заявки</title>
+<title>Школа — Заявки</title>
 
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Geologica:wght@300;400;500;600;700&display=swap');
@@ -83,6 +83,8 @@
   .toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:var(--surface2);color:var(--text);border:1px solid var(--border);padding:10px 18px;border-radius:20px;font-size:13px;z-index:999;opacity:0;transition:opacity .2s;pointer-events:none}
   .toast.show{opacity:1}
 </style>
+<meta name="robots" content="noindex,nofollow">
+<style>html,body{overflow-x:hidden;max-width:100%;overscroll-behavior-x:none}.screen{max-width:100%;overflow-x:hidden}</style>
 <script src="mock.js"></script>
 </head>
 <body>
@@ -165,7 +167,7 @@ function showToast(text, isError) {
 
 let staffInfo = null;
 let activeTab = "active";
-let activeCity = "Центральный";
+let activeCity = "Филиал 1";
 const UNSCOPED_ROLES = ["Директор", "director", "developer"];
 let pending = new Set();
 
@@ -184,7 +186,7 @@ async function initStaff() {
       document.getElementById("cityToggle").style.display = "flex";
       renderCityToggle();
     } else {
-      activeCity = staffInfo.city || "Центральный";
+      activeCity = staffInfo.city || "Филиал 1";
     }
     load();
   } catch (e) {
@@ -195,7 +197,7 @@ async function initStaff() {
 
 function renderCityToggle() {
   const el = document.getElementById("cityToggle");
-  el.innerHTML = ["Центральный", "Северный"].map(c =>
+  el.innerHTML = ["Филиал 1", "Филиал 2"].map(c =>
     `<button class="city-btn${c === activeCity ? " active" : ""}" onclick="switchCity('${c}')">${c}</button>`
   ).join("");
 }
