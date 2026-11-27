@@ -1247,31 +1247,33 @@ function browserInit(win) {
   });
 
   win.__demo = { role: o.role, lang: o.lang, design: o.design, today: fmtDmy(today) };
-  win.addEventListener("DOMContentLoaded", () => { if (!o.embed) renderPanel = mountSwitcher(win, page, o); });
+  win.addEventListener("DOMContentLoaded", () => { renderPanel = mountSwitcher(win, page, o); });
 }
 
+const DESIGN_DOTS = { classic: ["#0f1117", "#4f8ef7"], light: ["#f4f6fb", "#3b6fe0"], emerald: ["#eef7f3", "#0f9d78"], strict: ["#ffffff", "#111111"] };
 function mountSwitcher(win, page, o) {
   const doc = win.document;
   const en = o.lang === "en";
   const wrap = doc.createElement("div");
   wrap.id = "demoSwitcher";
   const base = "font-family:system-ui,-apple-system,sans-serif;box-sizing:border-box;";
-  wrap.style.cssText = base + "position:fixed;top:8px;right:8px;z-index:2147483000;max-width:240px;color:#fff;";
-  const chip = base + "display:flex;align-items:center;gap:6px;background:rgba(20,22,30,.9);border:1px solid rgba(255,255,255,.18);border-radius:999px;padding:5px 11px;font-size:11.5px;font-weight:600;cursor:pointer;box-shadow:0 2px 10px rgba(0,0,0,.3);";
-  const pill = on => base + "border:0;border-radius:999px;padding:6px 10px;margin:0 4px 5px 0;font-size:12px;font-weight:600;cursor:pointer;color:#fff;background:" + (on ? "#4f8ef7" : "rgba(255,255,255,.12)") + ";";
-  const title = t => '<div style="font-size:10.5px;opacity:.6;margin:6px 2px 5px;text-transform:uppercase;letter-spacing:.06em">' + t + '</div>';
+  wrap.style.cssText = base + "position:fixed;top:8px;right:8px;z-index:2147483000;max-width:236px;color:#fff;";
+  const glass = "background:rgba(20,22,30,.92);border:1px solid rgba(255,255,255,.16);box-shadow:0 4px 18px rgba(0,0,0,.35);";
+  const dot = (k, size) => '<span style="display:inline-block;width:' + size + 'px;height:' + size + 'px;border-radius:50%;border:1px solid rgba(255,255,255,.35);background:linear-gradient(135deg,' + DESIGN_DOTS[k][0] + ' 50%,' + DESIGN_DOTS[k][1] + ' 50%)"></span>';
+  const role = (k, on) => '<button data-role="' + k + '" style="' + base + 'border:0;border-radius:999px;padding:6px 11px;margin:0 4px 5px 0;font-size:12px;font-weight:600;cursor:pointer;color:#fff;background:' + (on ? "#4f8ef7" : "rgba(255,255,255,.12)") + '">' + uLabel(USERS[k]) + '</button>';
+  const label = t => '<div style="font-size:10px;opacity:.55;margin:4px 2px 6px;text-transform:uppercase;letter-spacing:.08em">' + t + '</div>';
   function render() {
     if (lsGet(PANEL_KEY) !== "1") {
-      wrap.innerHTML = '<div id="demoChip" style="' + chip + '"><span style="opacity:.7">' + (en ? "Demo" : "Демо") + ' ·</span><span>' + uLabel(USERS[o.role]) + '</span><span style="opacity:.6">▾</span></div>';
+      wrap.innerHTML = '<div id="demoChip" style="' + base + glass + 'display:flex;align-items:center;gap:7px;border-radius:999px;padding:5px 11px;font-size:11.5px;font-weight:600;cursor:pointer;">' + dot(o.design, 12) + '<span>' + uLabel(USERS[o.role]) + '</span><span style="opacity:.55">▾</span></div>';
       wrap.querySelector("#demoChip").onclick = () => { lsSet(PANEL_KEY, "1"); render(); };
       return;
     }
-    wrap.innerHTML = '<div style="' + base + 'background:rgba(20,22,30,.96);border:1px solid rgba(255,255,255,.18);border-radius:14px;padding:8px 10px 10px;box-shadow:0 6px 24px rgba(0,0,0,.45);">' +
-      '<div style="font-size:11px;opacity:.65;margin:0 2px 2px">' + (en ? "Demo · all data is made up" : "Демо · все данные выдуманные") + '</div>' +
-      title(en ? "Role" : "Роль") + Object.keys(USERS).map(k => '<button data-role="' + k + '" style="' + pill(k === o.role) + '">' + uLabel(USERS[k]) + '</button>').join("") +
-      title(en ? "Design" : "Дизайн") + Object.keys(DESIGNS).map(k => '<button data-design="' + k + '" style="' + pill(k === o.design) + '">' + DESIGNS[k][o.lang] + '</button>').join("") +
-      title(en ? "Language" : "Язык") + ["ru", "en"].map(k => '<button data-lang="' + k + '" style="' + pill(k === o.lang) + '">' + k.toUpperCase() + '</button>').join("") +
-      '<button id="demoHide" style="' + pill(false) + 'display:block;width:100%;margin:6px 0 0">' + (en ? "Hide" : "Свернуть") + '</button></div>';
+    const dots = Object.keys(DESIGNS).map(k => '<button data-design="' + k + '" title="' + DESIGNS[k][o.lang] + '" style="' + base + 'border:0;background:none;padding:3px;margin:0 3px 0 0;cursor:pointer;border-radius:50%;box-shadow:' + (k === o.design ? "0 0 0 2px #4f8ef7" : "none") + '">' + dot(k, 24) + '</button>').join("");
+    const langs = o.embed ? "" : label(en ? "Language" : "Язык") + ["ru", "en"].map(k => '<button data-lang="' + k + '" style="' + base + 'border:0;border-radius:999px;padding:6px 11px;margin:0 4px 5px 0;font-size:12px;font-weight:600;cursor:pointer;color:#fff;background:' + (k === o.lang ? "#4f8ef7" : "rgba(255,255,255,.12)") + '">' + k.toUpperCase() + '</button>').join("");
+    wrap.innerHTML = '<div style="' + base + glass + 'border-radius:16px;padding:8px 10px 8px;">' +
+      '<div style="display:flex;align-items:center;justify-content:space-between;margin:0 2px 2px"><span style="font-size:10.5px;opacity:.6">' + (en ? "Demo · made-up data" : "Демо · данные выдуманные") + '</span><button id="demoHide" aria-label="Hide" style="' + base + 'border:0;background:none;color:#fff;opacity:.6;font-size:15px;cursor:pointer;padding:0 2px">✕</button></div>' +
+      label(en ? "Role" : "Роль") + Object.keys(USERS).map(k => role(k, k === o.role)).join("") +
+      label(en ? "Design" : "Дизайн") + '<div style="display:flex;align-items:center;margin-bottom:4px">' + dots + '</div>' + langs + '</div>';
     wrap.querySelectorAll("button[data-role]").forEach(b => { b.onclick = () => { const r = b.getAttribute("data-role"); win.location.href = pageUrl(r === "parent" ? "parent" : "index", Object.assign({}, o, { role: r })); }; });
     wrap.querySelectorAll("button[data-design]").forEach(b => { b.onclick = () => { o.design = b.getAttribute("data-design"); applyDesign(win, o.design); render(); }; });
     wrap.querySelectorAll("button[data-lang]").forEach(b => { b.onclick = () => { if (b.getAttribute("data-lang") !== o.lang) win.location.href = pageUrl(page, Object.assign({}, o, { lang: b.getAttribute("data-lang") })); }; });
