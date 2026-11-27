@@ -1110,7 +1110,7 @@ function installTranslator(win) {
 // ── Браузерная обвязка: подмена Telegram, fetch, часов; роли, дизайны, язык ──
 const API_HOST = "https://api.demo.local";
 const API_HOST_BACKUP = "https://api-backup.demo.local";
-const ROLE_KEY = "demo_role", DESIGN_KEY = "demo_design", LANG_KEY = "demo_lang", PANEL_KEY = "demo_panel_open";
+const ROLE_KEY = "demo_role", DESIGN_KEY = "demo_design", LANG_KEY = "demo_lang";
 const DESIGNS = {
   classic: { base: "dark", ru: "Ночь", en: "Night" },
   light: { base: "light", ru: "Светлая", en: "Light" },
@@ -1251,34 +1251,35 @@ function browserInit(win) {
 }
 
 const DESIGN_DOTS = { classic: ["#0f1117", "#4f8ef7"], light: ["#f4f6fb", "#3b6fe0"], emerald: ["#eef7f3", "#0f9d78"], strict: ["#ffffff", "#111111"] };
+// Две отдельные кнопки сверху телефона: «роль» и «дизайн». Каждая открывает свой маленький список.
 function mountSwitcher(win, page, o) {
   const doc = win.document;
   const en = o.lang === "en";
   const wrap = doc.createElement("div");
   wrap.id = "demoSwitcher";
   const base = "font-family:system-ui,-apple-system,sans-serif;box-sizing:border-box;";
-  wrap.style.cssText = base + "position:fixed;top:8px;right:8px;z-index:2147483000;max-width:236px;color:#fff;";
+  wrap.style.cssText = base + "position:fixed;top:8px;left:8px;right:8px;z-index:2147483000;display:flex;flex-direction:column;gap:6px;color:#fff;pointer-events:none;";
   const glass = "background:rgba(20,22,30,.92);border:1px solid rgba(255,255,255,.16);box-shadow:0 4px 18px rgba(0,0,0,.35);";
-  const dot = (k, size) => '<span style="display:inline-block;width:' + size + 'px;height:' + size + 'px;border-radius:50%;border:1px solid rgba(255,255,255,.35);background:linear-gradient(135deg,' + DESIGN_DOTS[k][0] + ' 50%,' + DESIGN_DOTS[k][1] + ' 50%)"></span>';
-  const role = (k, on) => '<button data-role="' + k + '" style="' + base + 'border:0;border-radius:999px;padding:6px 11px;margin:0 4px 5px 0;font-size:12px;font-weight:600;cursor:pointer;color:#fff;background:' + (on ? "#4f8ef7" : "rgba(255,255,255,.12)") + '">' + uLabel(USERS[k]) + '</button>';
-  const label = t => '<div style="font-size:10px;opacity:.55;margin:4px 2px 6px;text-transform:uppercase;letter-spacing:.08em">' + t + '</div>';
+  const dot = (k, size) => '<span style="display:inline-block;width:' + size + 'px;height:' + size + 'px;border-radius:50%;border:1px solid rgba(255,255,255,.4);flex-shrink:0;background:linear-gradient(135deg,' + DESIGN_DOTS[k][0] + ' 50%,' + DESIGN_DOTS[k][1] + ' 50%)"></span>';
+  const chip = (id, inner, on) => '<button id="' + id + '" style="pointer-events:auto;' + base + glass + 'display:flex;align-items:center;gap:7px;border-radius:999px;padding:5px 11px;font-size:11.5px;font-weight:600;cursor:pointer;color:#fff;' + (on ? "border-color:#4f8ef7;" : "") + '">' + inner + '<span style="opacity:.55">' + (on ? "▴" : "▾") + '</span></button>';
+  const row = (attr, val, inner, on) => '<button ' + attr + '="' + val + '" style="' + base + 'display:flex;align-items:center;gap:9px;width:100%;border:0;border-radius:10px;padding:8px 10px;font-size:12.5px;font-weight:600;cursor:pointer;text-align:left;color:#fff;background:' + (on ? "rgba(79,142,247,.9)" : "transparent") + '">' + inner + '</button>';
+  let open = null;
+  const panel = inner => '<div style="' + base + glass + 'border-radius:14px;padding:5px;min-width:150px;">' + inner + '</div>';
   function render() {
-    if (lsGet(PANEL_KEY) !== "1") {
-      wrap.innerHTML = '<div id="demoChip" style="' + base + glass + 'display:flex;align-items:center;gap:7px;border-radius:999px;padding:5px 11px;font-size:11.5px;font-weight:600;cursor:pointer;">' + dot(o.design, 12) + '<span>' + uLabel(USERS[o.role]) + '</span><span style="opacity:.55">▾</span></div>';
-      wrap.querySelector("#demoChip").onclick = () => { lsSet(PANEL_KEY, "1"); render(); };
-      return;
-    }
-    const dots = Object.keys(DESIGNS).map(k => '<button data-design="' + k + '" title="' + DESIGNS[k][o.lang] + '" style="' + base + 'border:0;background:none;padding:3px;margin:0 3px 0 0;cursor:pointer;border-radius:50%;box-shadow:' + (k === o.design ? "0 0 0 2px #4f8ef7" : "none") + '">' + dot(k, 24) + '</button>').join("");
-    const langs = o.embed ? "" : label(en ? "Language" : "Язык") + ["ru", "en"].map(k => '<button data-lang="' + k + '" style="' + base + 'border:0;border-radius:999px;padding:6px 11px;margin:0 4px 5px 0;font-size:12px;font-weight:600;cursor:pointer;color:#fff;background:' + (k === o.lang ? "#4f8ef7" : "rgba(255,255,255,.12)") + '">' + k.toUpperCase() + '</button>').join("");
-    wrap.innerHTML = '<div style="' + base + glass + 'border-radius:16px;padding:8px 10px 8px;">' +
-      '<div style="display:flex;align-items:center;justify-content:space-between;margin:0 2px 2px"><span style="font-size:10.5px;opacity:.6">' + (en ? "Demo · made-up data" : "Демо · данные выдуманные") + '</span><button id="demoHide" aria-label="Hide" style="' + base + 'border:0;background:none;color:#fff;opacity:.6;font-size:15px;cursor:pointer;padding:0 2px">✕</button></div>' +
-      label(en ? "Role" : "Роль") + Object.keys(USERS).map(k => role(k, k === o.role)).join("") +
-      label(en ? "Design" : "Дизайн") + '<div style="display:flex;align-items:center;margin-bottom:4px">' + dots + '</div>' + langs + '</div>';
+    const ev = "pointer-events:auto;";
+    let html = '<div style="display:flex;justify-content:space-between;gap:6px">' + chip("demoDesignChip", dot(o.design, 13) + "<span>" + DESIGNS[o.design][o.lang] + "</span>", open === "design") + chip("demoRoleChip", "<span>" + uLabel(USERS[o.role]) + "</span>", open === "role") + "</div>";
+    if (open === "role") html += '<div style="align-self:flex-end;' + ev + '">' + panel(Object.keys(USERS).map(k => row("data-role", k, uLabel(USERS[k]), k === o.role)).join("")) + "</div>";
+    if (open === "design") html += '<div style="align-self:flex-start;' + ev + '">' + panel(Object.keys(DESIGNS).map(k => row("data-design", k, dot(k, 18) + "<span>" + DESIGNS[k][o.lang] + "</span>", k === o.design)).join("")) + "</div>";
+    if (open && !o.embed) html += '<div style="display:flex;gap:6px;align-self:center;' + ev + '">' + ["ru", "en"].map(k => '<button data-lang="' + k + '" style="' + base + glass + 'border-radius:999px;padding:5px 11px;font-size:11.5px;font-weight:600;cursor:pointer;color:#fff;' + (k === o.lang ? "border-color:#4f8ef7;" : "") + '">' + k.toUpperCase() + "</button>").join("") + "</div>";
+    wrap.innerHTML = html;
+    const toggle = which => e => { e.stopPropagation(); open = open === which ? null : which; render(); };
+    wrap.querySelector("#demoDesignChip").onclick = toggle("design");
+    wrap.querySelector("#demoRoleChip").onclick = toggle("role");
     wrap.querySelectorAll("button[data-role]").forEach(b => { b.onclick = () => { const r = b.getAttribute("data-role"); win.location.href = pageUrl(r === "parent" ? "parent" : "index", Object.assign({}, o, { role: r })); }; });
-    wrap.querySelectorAll("button[data-design]").forEach(b => { b.onclick = () => { o.design = b.getAttribute("data-design"); applyDesign(win, o.design); render(); }; });
+    wrap.querySelectorAll("button[data-design]").forEach(b => { b.onclick = () => { o.design = b.getAttribute("data-design"); applyDesign(win, o.design); open = null; render(); }; });
     wrap.querySelectorAll("button[data-lang]").forEach(b => { b.onclick = () => { if (b.getAttribute("data-lang") !== o.lang) win.location.href = pageUrl(page, Object.assign({}, o, { lang: b.getAttribute("data-lang") })); }; });
-    wrap.querySelector("#demoHide").onclick = () => { lsSet(PANEL_KEY, "0"); render(); };
   }
+  doc.addEventListener("click", e => { if (open && !wrap.contains(e.target)) { open = null; render(); } });
   render();
   doc.body.appendChild(wrap);
   return render;
