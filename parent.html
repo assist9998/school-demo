@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+<meta name="referrer" content="no-referrer">
+<title>Школа Пример — Мой ребёнок</title>
+
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Geologica:wght@300;400;500;600;700&display=swap');
+  :root {
+    --bg:#0f1117;--surface:#1a1d27;--surface2:#22263a;
+    --accent:#4f8ef7;--accent2:#38d9a9;--danger:#ff6b6b;--warning:#ffd43b;
+    --text:#e8eaf0;--text2:#8b90a8;--border:#2d3250;
+    --radius:16px;--radius-sm:10px;
+    
+    --g5:#38d9a9;--g5-bg:rgba(56,217,169,.16);
+    --g4:#4f8ef7;--g4-bg:rgba(79,142,247,.16);
+    --g3:#ffd43b;--g3-bg:rgba(255,212,59,.14);
+    --g2:#ff6b6b;--g2-bg:rgba(255,107,107,.16);
+  }
+  html[data-theme="light"] {
+    --bg:#f4f5f9;--surface:#ffffff;--surface2:#eef0f6;
+    --text:#1a1d27;--text2:#6b7086;--border:#e2e4ee;
+    --g5:#0d966e;--g5-bg:rgba(13,150,110,.12);
+    --g4:#3672d9;--g4-bg:rgba(79,142,247,.14);
+    --g3:#a26e00;--g3-bg:rgba(217,157,0,.14);
+    --g2:#d93636;--g2-bg:rgba(224,54,54,.12);
+  }
+  *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+  body{font-family:'Geologica',sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
+
+  .header{background:var(--surface);border-bottom:1px solid var(--border);padding:14px 16px;padding-top:calc(52px + env(safe-area-inset-top));display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100}
+  .header-title{font-size:17px;font-weight:700;background:linear-gradient(135deg,var(--accent),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+
+  .screen{display:none;padding:16px}
+  .screen.active{display:block}
+  .empty{text-align:center;padding:40px 20px;color:var(--text2);font-size:14px}
+
+  .avatar{width:42px;height:42px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:700;flex-shrink:0;background:var(--surface2);color:var(--accent)}
+  .avatar-oval{width:auto;min-width:42px;padding:0 14px;border-radius:21px}
+  .child-list-item{background:var(--surface);border-radius:var(--radius);border:1px solid var(--border);padding:12px 14px;margin-bottom:8px;display:flex;align-items:center;gap:12px;cursor:pointer;transition:border-color .2s}
+  .child-arrow{color:var(--text2);font-size:16px;flex-shrink:0}
+  .child-detail{flex:1;min-width:0}
+  .child-detail-name{font-size:14px;font-weight:600;margin-bottom:2px}
+  .child-detail-meta{font-size:12px;color:var(--text2)}
+
+  .cal-wrap{background:var(--surface2);border-radius:12px;padding:12px;margin-bottom:16px}
+  .cal-nav{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
+  .cal-nav button{border:none;background:var(--surface);border-radius:10px;width:28px;height:28px;cursor:pointer;color:var(--text);font-size:15px}
+  .cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px}
+  .cal-dow{text-align:center;font-size:10px;color:var(--text2);font-weight:600;margin-bottom:2px}
+  .cal-cell{aspect-ratio:1;border-radius:50%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;font-size:12px;font-weight:600}
+  .cal-dot{width:4px;height:4px;border-radius:50%;flex-shrink:0}
+  .cal-legend{display:flex;gap:12px;margin-top:10px;padding-top:10px;border-top:1px solid var(--border);flex-wrap:wrap}
+  .cal-legend-item{display:flex;align-items:center;gap:4px;font-size:10.5px;color:var(--text2)}
+  .cal-legend-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0}
+
+  
+  .lesson-card{background:var(--surface);border-radius:14px;padding:12px 13px 12px 14px;margin-bottom:8px;border-left:4px solid var(--border)}
+  .lesson-card.tier-5{border-left-color:var(--g5)}
+  .lesson-card.tier-4{border-left-color:var(--g4)}
+  .lesson-card.tier-3{border-left-color:var(--g3)}
+  .lesson-card.tier-2{border-left-color:var(--g2)}
+  .lesson-top{display:flex;justify-content:space-between;align-items:flex-start;gap:8px}
+  .lesson-subject{font-size:14px;font-weight:600}
+  .lesson-meta{display:flex;align-items:center;gap:6px;margin-top:3px;font-size:11px;color:var(--text2);font-variant-numeric:tabular-nums}
+  .att-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0}
+  .att-dot.on{background:var(--g5)}
+  .att-dot.off{background:var(--text2);opacity:.55}
+  .lesson-grades{display:flex;gap:5px;flex-shrink:0}
+  .grade-badge{width:26px;height:26px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;flex-shrink:0}
+  .grade-badge.tier-5{background:var(--g5-bg);color:var(--g5)}
+  .grade-badge.tier-4{background:var(--g4-bg);color:var(--g4)}
+  .grade-badge.tier-3{background:var(--g3-bg);color:var(--g3)}
+  .grade-badge.tier-2{background:var(--g2-bg);color:var(--g2)}
+  .lesson-topic{font-size:12.5px;color:var(--text);margin-top:8px;line-height:1.4}
+  .lesson-hw{display:inline-flex;align-items:center;gap:5px;margin-top:7px;padding:3px 9px 3px 8px;border-radius:8px;background:var(--surface2);font-size:11px;color:var(--text2)}
+  .lesson-hw b{color:var(--text);font-weight:600}
+  .lesson-comment{margin-top:7px;padding-top:7px;border-top:1px dashed var(--border);font-size:11.5px;color:var(--text2);font-style:italic;line-height:1.4}
+</style>
+<script src="mock.js"></script>
+</head>
+<body>
+
+<div class="header" style="justify-content:center">
+  <div class="header-title" onclick="toggleTheme()" style="font-size:20px;display:flex;align-items:center;gap:8px;cursor:pointer">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M22 10L12 5 2 10l10 5 10-5z"/><path d="M6 12v5c0 1.5 3 3 6 3s6-1.5 6-3v-5"/></svg>
+    Школа Пример
+  </div>
+</div>
+
+<div class="screen active" id="screen-loading">
+  <div class="empty">Загрузка...</div>
+</div>
+
+<div class="screen" id="screen-no-access">
+  <div class="empty">Этот Telegram-аккаунт пока не привязан ни к одному ребёнку.<br><br>Обратитесь к администратору «Школа Пример» за кодом привязки.</div>
+</div>
+
+<div class="screen" id="screen-children">
+  <div style="font-size:15px;font-weight:700;margin-bottom:14px">Мои дети</div>
+  <div id="childrenList"></div>
+</div>
+
+<div class="screen" id="screen-child">
+  <div id="childContent"></div>
+</div>
+
+<script>
+const API_URL = "https://api.demo.local";
+const tg = window.Telegram?.WebApp;
+
+const PREVIEW_TOKEN = new URLSearchParams(location.search).get("preview_token") || "";
+function withToken(url) {
+  return PREVIEW_TOKEN ? url + (url.includes("?") ? "&" : "?") + "preview_token=" + encodeURIComponent(PREVIEW_TOKEN) : url;
+}
+
+function authHeaders(extra) {
+  return Object.assign(
+    {"X-Demo": "true", "X-Telegram-Init-Data": (tg && tg.initData) || ""},
+    extra || {}
+  );
+}
+if(tg){ tg.ready(); tg.expand(); if(tg.requestFullscreen) tg.requestFullscreen(); }
+
+function applyTheme(theme) { document.documentElement.setAttribute("data-theme", theme); }
+function toggleTheme() {
+  const current = document.documentElement.getAttribute("data-theme") === "light" ? "light" : "dark";
+  const next = current === "light" ? "dark" : "light";
+  localStorage.setItem("demo_parent_theme", next);
+  applyTheme(next);
+}
+applyTheme(localStorage.getItem("demo_parent_theme") || "dark");
+
+function escapeHtml(s) {
+  return (s || "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+}
+
+const RU_MONTHS_SHORT = ["янв","фев","мар","апр","мая","июн","июл","авг","сен","окт","ноя","дек"];
+const RU_MONTHS = ["Январь","Февраль","Март","Апрель","Май","Июнь","Июль","Август","Сентябрь","Октябрь","Ноябрь","Декабрь"];
+function formatShortDate(dmy) {
+  const [d, m] = dmy.split(".");
+  return parseInt(d, 10) + " " + RU_MONTHS_SHORT[parseInt(m, 10) - 1];
+}
+
+function dmyToDate(dmy) {
+  const [d, m, y] = dmy.split(".").map(Number);
+  return new Date(y, m - 1, d);
+}
+
+let screenStack = [];
+
+function screenHeadRow(showBack, name, groupText) {
+  const back = showBack
+    ? '<div style="display:flex;align-items:center;gap:10px;margin-bottom:12px">' +
+      '<button onclick="goBack()" style="flex-shrink:0;padding:6px 14px;border-radius:20px;border:1.5px solid var(--border);background:transparent;color:var(--text2);font-family:inherit;font-size:13px;cursor:pointer">&#8592; Назад</button>' +
+      '</div>'
+    : "";
+  const parts = [groupText, name].filter(Boolean);
+  const badges = parts.map((t, i) => {
+    const grow = i === parts.length - 1 ? "1 1 auto" : "0 0 auto";
+    return `<div class="avatar avatar-oval" style="flex:${grow};width:auto;border:1.5px solid var(--border);background:var(--surface)">${escapeHtml(t)}</div>`;
+  }).join("");
+  return back + `<div style="display:flex;gap:8px;margin-bottom:16px">${badges}</div>`;
+}
+
+function showScreen(id) {
+  document.querySelectorAll(".screen").forEach(s => s.classList.remove("active"));
+  document.getElementById("screen-" + id).classList.add("active");
+}
+
+function navTo(id) {
+  const current = document.querySelector(".screen.active")?.id?.replace("screen-", "");
+  if(current && current !== id) screenStack.push(current);
+  showScreen(id);
+}
+
+function goBack() {
+  const prev = screenStack.pop();
+  if(!prev) return;
+  showScreen(prev);
+}
+
+let parentChildren = [];
+let activeChild = null;
+
+async function init() {
+  if(PREVIEW_TOKEN) {
+    try {
+      const resp = await fetch(withToken(API_URL + "/parent/preview-child"), {headers: authHeaders()});
+      const data = await resp.json();
+      if(data.ok && data.child) {
+        await openChild(data.child, false);
+        return;
+      }
+    } catch(e) { console.error("preview-child error:", e); }
+    document.getElementById("screen-no-access").innerHTML =
+      '<div class="empty">Не удалось открыть дневник — ссылка могла устареть.<br><br>Откройте карточку ребёнка заново.</div>';
+    showScreen("no-access");
+    return;
+  }
+
+  try {
+    const resp = await fetch(API_URL + "/parent/children", {headers: authHeaders()});
+    const data = await resp.json();
+    parentChildren = data.ok ? data.children : [];
+  } catch(e) {
+    console.error("init error:", e);
+    parentChildren = [];
+  }
+  if(!parentChildren.length) {
+    showScreen("no-access");
+    return;
+  }
+  if(parentChildren.length === 1) {
+    await openChild(parentChildren[0], false);
+    return;
+  }
+  renderChildrenList();
+  showScreen("children");
+
+  const targetId = new URLSearchParams(location.search).get("child_id");
+  const targetChild = targetId && parentChildren.find(c => String(c.id) === targetId);
+  if(targetChild) await openChild(targetChild, true);
+}
+init();
+
+function renderChildrenList() {
+  document.getElementById("childrenList").innerHTML = parentChildren.map((c, i) => {
+    const initials = c.name.split(" ").map(w => w[0]).join("").slice(0, 2);
+    return `<div class="child-list-item" onclick="openChild(parentChildren[${i}])">
+      <div class="avatar">${initials}</div>
+      <div class="child-detail">
+        <div class="child-detail-name">${escapeHtml(c.name)}</div>
+        <div class="child-detail-meta">${escapeHtml(c.city)} · ${escapeHtml(c.dept)}${c.group ? " · " + escapeHtml(c.group) : ""}</div>
+      </div>
+      <span class="child-arrow">&#8250;</span>
+    </div>`;
+  }).join("");
+}
+
+async function openChild(c, showBack = true) {
+  if(!activeChild || activeChild.id !== c.id) {
+    schoolCache = null;
+    schoolSelectedDate = null;
+  }
+  activeChild = c;
+  if(showBack) navTo("child"); else showScreen("child");
+  document.getElementById("childContent").innerHTML =
+    screenHeadRow(showBack, c.name, c.group) + '<div id="childBody"><div class="empty">Загрузка...</div></div>';
+  await renderChildSchool();
+}
+
+let schoolCache = null; // {subjects, schedule, feedByDate: {"дд.мм.гггг": [{subject_id, subject_name, topic, homework, grades, attendance}]}}
+let schoolCalView = null;
+let schoolSelectedDate = null;
+
+async function renderChildSchool() {
+  const body = document.getElementById("childBody");
+  if(!schoolCache) {
+    body.innerHTML = '<div class="empty">Загрузка...</div>';
+    let subjects = [], schedule = [];
+    try {
+      const resp = await fetch(withToken(API_URL + "/parent/subjects?child_id=" + activeChild.id), {headers: authHeaders()});
+      const data = await resp.json();
+      subjects = data.ok ? data.subjects : [];
+    } catch(e) { console.error("subjects error:", e); }
+    try {
+      const resp = await fetch(withToken(API_URL + "/parent/schedule?child_id=" + activeChild.id), {headers: authHeaders()});
+      const data = await resp.json();
+      schedule = data.ok ? data.schedule : [];
+    } catch(e) { console.error("schedule error:", e); }
+
+    const feedByDate = {};
+    await Promise.all(subjects.map(async s => {
+      try {
+        const resp = await fetch(
+          withToken(API_URL + "/parent/subject-feed?child_id=" + activeChild.id + "&subject_id=" + s.id),
+          {headers: authHeaders()},
+        );
+        const data = await resp.json();
+        (data.ok ? data.feed : []).forEach(item => {
+          (feedByDate[item.date] = feedByDate[item.date] || [])
+            .push(Object.assign({subject_id: s.id, subject_name: s.name}, item));
+        });
+      } catch(e) { console.error("subject-feed error:", e); }
+    }));
+
+    schoolCache = {subjects, schedule, feedByDate};
+  }
+
+  if(!schoolCache.subjects.length) {
+    body.innerHTML = '<div class="empty">Пока нет предметов</div>';
+    return;
+  }
+  if(!schoolCalView) {
+    const n = new Date();
+    schoolCalView = {year: n.getFullYear(), month: n.getMonth()};
+  }
+  renderSchoolCalendar();
+}
+
+function prevSchoolMonth() { schoolCalView.month === 0 ? (schoolCalView.year--, schoolCalView.month = 11) : schoolCalView.month--; renderSchoolCalendar(); }
+function nextSchoolMonth() { schoolCalView.month === 11 ? (schoolCalView.year++, schoolCalView.month = 0) : schoolCalView.month++; renderSchoolCalendar(); }
+function selectSchoolDate(dateStr) { schoolSelectedDate = schoolSelectedDate === dateStr ? null : dateStr; renderSchoolCalendar(); }
+
+function renderSchoolCalendar() {
+  const { year, month } = schoolCalView;
+  const DOW = ["Пн","Вт","Ср","Чт","Пт","Сб","Вс"];
+  const schoolWeekdays = new Set(schoolCache.schedule.filter(e => !e.is_break).map(e => e.weekday));
+
+  let startDow = new Date(year, month, 1).getDay();
+  startDow = startDow === 0 ? 6 : startDow - 1;
+  const daysInMonth = new Date(year, month + 1, 0).getDate();
+
+  const cells = [];
+  for(let i = 0; i < startDow; i++) cells.push(null);
+  for(let d = 1; d <= daysInMonth; d++) cells.push(d);
+
+  let anyGradeThisMonth = false;
+  let grid = DOW.map(d => `<div class="cal-dow">${d}</div>`).join("");
+  grid = `<div class="cal-grid" style="margin-bottom:4px">${grid}</div><div class="cal-grid">`;
+  cells.forEach(d => {
+    if(d === null) { grid += "<div></div>"; return; }
+    const dateStr = fmtDMY(year, month, d);
+    const jsDow = new Date(year, month, d).getDay();
+    const isoDow = jsDow === 0 ? 7 : jsDow;
+    const hasLessons = schoolWeekdays.has(isoDow);
+    const entries = schoolCache.feedByDate[dateStr] || [];
+    const selected = dateStr === schoolSelectedDate;
+    const worstGrade = entries.reduce((min, e) => {
+      (e.grades || []).forEach(g => {
+        const v = parseInt(g.value, 10);
+        if(!isNaN(v) && (min === null || v < min)) min = v;
+      });
+      return min;
+    }, null);
+    if(worstGrade !== null) anyGradeThisMonth = true;
+    const bg = selected ? "var(--accent)" : entries.length ? "rgba(79,142,247,.18)" : "var(--surface)";
+    const color = selected ? "#fff" : hasLessons ? "var(--text)" : "var(--text2)";
+    const clickAttr = hasLessons ? ` onclick="selectSchoolDate('${dateStr}')"` : "";
+    const dotColor = selected ? "#fff" : worstGrade !== null ? `var(--g${worstGrade})` : "transparent";
+    grid += `<div class="cal-cell"${clickAttr} style="background:${bg};color:${color};${hasLessons ? "cursor:pointer" : "opacity:.4"}">
+      <span>${d}</span><span class="cal-dot" style="background:${dotColor}"></span>
+    </div>`;
+  });
+  grid += "</div>";
+
+  const legend = anyGradeThisMonth
+    ? `<div class="cal-legend">
+        <div class="cal-legend-item"><span class="cal-legend-dot" style="background:var(--g5)"></span>5</div>
+        <div class="cal-legend-item"><span class="cal-legend-dot" style="background:var(--g4)"></span>4</div>
+        <div class="cal-legend-item"><span class="cal-legend-dot" style="background:var(--g3)"></span>3</div>
+        <div class="cal-legend-item"><span class="cal-legend-dot" style="background:var(--g2)"></span>2</div>
+      </div>`
+    : "";
+
+  document.getElementById("childBody").innerHTML = `<div class="cal-wrap">
+    <div class="cal-nav">
+      <button onclick="prevSchoolMonth()">&lsaquo;</button>
+      <div style="font-weight:700;font-size:13px">${RU_MONTHS[month]} ${year}</div>
+      <button onclick="nextSchoolMonth()">&rsaquo;</button>
+    </div>
+    ${grid}
+    ${legend}
+  </div>` + (schoolSelectedDate ? schoolDayDetailHtml(schoolSelectedDate) : "");
+}
+
+function schoolDayDetailHtml(dateStr) {
+  const d = dmyToDate(dateStr);
+  const jsDow = d.getDay();
+  const isoDow = jsDow === 0 ? 7 : jsDow;
+  const lessons = schoolCache.schedule
+    .filter(e => e.weekday === isoDow && !e.is_break)
+    .slice()
+    .sort((a, b) => (a.time_start || "").localeCompare(b.time_start || ""));
+
+  const feedBySubject = {};
+  (schoolCache.feedByDate[dateStr] || []).forEach(item => { feedBySubject[item.subject_id] = item; });
+
+  const head = `<div class="avatar" style="flex-direction:column;gap:0;background:var(--accent);color:#fff;margin-bottom:12px">
+    <div style="font-size:14px;font-weight:700;line-height:1.05">${d.getDate()}</div>
+    <div style="font-size:7px;font-weight:600;text-transform:uppercase;letter-spacing:.02em;opacity:.85">${RU_MONTHS_SHORT[d.getMonth()]}</div>
+  </div>`;
+
+  if(!lessons.length) {
+    return head + '<div class="empty">Уроков нет</div>';
+  }
+
+  const rows = lessons.map((e, i) => {
+    const item = feedBySubject[e.subject_id];
+    const time = [e.time_start, e.time_end].filter(Boolean).join("–");
+    const gradeItems = (item && item.grades) || [];
+    const worstGrade = gradeItems.reduce((min, g) => {
+      const v = parseInt(g.value, 10);
+      return !isNaN(v) && (min === null || v < min) ? v : min;
+    }, null);
+    const gradeBadges = gradeItems
+      .map(g => `<div class="grade-badge tier-${parseInt(g.value, 10)}">${escapeHtml(g.value)}</div>`)
+      .join("");
+    const gradeComments = gradeItems.filter(g => g.comment)
+      .map(g => `<div class="lesson-comment">«${escapeHtml(g.comment)}»</div>`)
+      .join("");
+    const attendanceMarked = item && item.attendance;
+    const present = item && item.attendance === "present";
+    const attDot = attendanceMarked
+      ? `<span class="att-dot ${present ? "on" : "off"}"></span>${present ? "Был" : "Не был"} · `
+      : "";
+    return `<div class="lesson-card${worstGrade !== null ? ` tier-${worstGrade}` : ""}">
+      <div class="lesson-top">
+        <div>
+          <div class="lesson-subject">${escapeHtml(e.subject_name || "Предмет")}</div>
+          <div class="lesson-meta">${attDot}${time || "Время не указано"}</div>
+        </div>
+        ${gradeBadges ? `<div class="lesson-grades">${gradeBadges}</div>` : ""}
+      </div>
+      ${item && item.topic ? `<div class="lesson-topic">${escapeHtml(item.topic)}</div>` : ""}
+      ${item && item.homework ? `<div class="lesson-hw">ДЗ: <b>${escapeHtml(item.homework)}</b></div>` : ""}
+      ${gradeComments}
+    </div>`;
+  }).join("");
+
+  return head + rows;
+}
+
+function fmtDMY(year, month, day) {
+  return String(day).padStart(2,'0') + "." + String(month+1).padStart(2,'0') + "." + year;
+}
+</script>
+</body>
+</html>
