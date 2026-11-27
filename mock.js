@@ -31,15 +31,11 @@ function isSchoolDay(d, city) {
   const hol = (city === C1 ? HOL_C1 : HOL_GENERAL).map(r => [parseDmy(r[0]), parseDmy(r[1])]);
   return !hol.some(r => d >= r[0] && d <= r[1]);
 }
-// Ближайший прошедший день, когда учатся оба филиала (чтобы «сегодня» в демо всегда было с уроками).
-function pickDemoDate(real) {
-  const base = new Date(real.getFullYear(), real.getMonth(), real.getDate());
-  for (let i = 0; i < 400; i++) {
-    const d = addDays(base, -i);
-    if (isSchoolDay(d, C1) && isSchoolDay(d, C2)) return d;
-  }
-  return parseDmy("12.11.2026");
-}
+// Демо всегда показывает один и тот же учебный день (пятница), чтобы оно не менялось по дням.
+const DEMO_DATE = "13.11.2026";
+function pickDemoDate() { return parseDmy(DEMO_DATE); }
+let LANG = "ru";
+const isEn = () => LANG === "en";
 
 const F_FIRST = ["Анна", "Мария", "София", "Виктория", "Алиса", "Полина", "Ева", "Варвара", "Милана", "Ксения", "Дарья", "Елизавета", "Арина", "Вероника", "Таисия", "Злата"];
 const M_FIRST = ["Артём", "Михаил", "Матвей", "Тимофей", "Иван", "Лев", "Даниил", "Кирилл", "Егор", "Фёдор", "Роман", "Платон", "Захар", "Макар", "Ярослав", "Глеб"];
@@ -49,6 +45,32 @@ const SURN = [["Васильев", "Васильева"], ["Громов", "Гр
   ["Фадеев", "Фадеева"], ["Хромов", "Хромова"], ["Цветков", "Цветкова"], ["Шубин", "Шубина"], ["Щербаков", "Щербакова"], ["Яковлев", "Яковлева"], ["Андреев", "Андреева"]];
 const MOM = ["Ольга", "Наталья", "Екатерина", "Юлия", "Светлана", "Татьяна", "Ирина", "Марина", "Евгения", "Алёна"];
 const DAD = ["Сергей", "Алексей", "Дмитрий", "Андрей", "Павел", "Николай", "Владимир", "Максим"];
+
+const F_FIRST_EN = ["Emma", "Olivia", "Ava", "Sophia", "Mia", "Isabella", "Chloe", "Lily", "Grace", "Zoe", "Ella", "Nora", "Ruby", "Alice", "Hannah", "Leah"];
+const M_FIRST_EN = ["Liam", "Noah", "Oliver", "Elijah", "James", "Lucas", "Henry", "Leo", "Jack", "Owen", "Theo", "Ethan", "Mason", "Ryan", "Adam", "Max"];
+const SURN_EN = ["Johnson", "Miller", "Davis", "Wilson", "Taylor", "Anderson", "Thomas", "Moore", "Martin", "Clark", "Lewis", "Walker", "Hall", "Young", "King", "Wright", "Scott", "Green", "Baker", "Adams", "Nelson", "Hill", "Carter", "Turner"];
+const MOM_EN = ["Laura", "Sarah", "Jessica", "Emily", "Rachel", "Anna", "Kate", "Megan", "Lisa", "Amy"];
+const DAD_EN = ["Mark", "Daniel", "Chris", "Paul", "Steven", "Brian", "Kevin", "Peter"];
+const SUBJ_EN = { "Математика": "Math", "Русский язык": "English", "Литература": "Reading", "Окружающий мир": "Science", "История": "History", "Английский язык": "Spanish", "Физкультура": "PE", "Музыка": "Music", "ИЗО": "Art" };
+const SUBJ_TOPICS_EN = {
+  "Математика": ["Adding and subtracting within 100", "Times tables for 2 and 3", "Two-step word problems", "Perimeter of a rectangle", "Division with remainders", "Order of operations", "Fractions and parts", "Units of length and mass", "Multiplying by one digit", "Number lines and comparing numbers"],
+  "Русский язык": ["Sounds and letters", "Word stress and syllables", "Spelling patterns", "Nouns", "Parts of speech review", "Types of sentences", "Word families", "Punctuation basics", "Writing a story from a picture", "Spelling test"],
+  "Литература": ["Folk tales", "Fables", "Poems about nature", "Fairy tales", "Stories about children", "Characters and their choices", "Reading in roles", "Retelling a text", "Riddles and proverbs", "Working with a story"],
+  "Окружающий мир": ["Seasons", "Plants around us", "Animals and their habitats", "Health and the human body", "Water and its properties", "Planets of the Solar System", "Safety rules", "People and jobs", "Maps and globes", "Rocks and minerals"],
+  "История": ["What history studies", "Life of early people", "Ancient Egypt", "Ancient Greece", "Working with a map", "Culture of ancient peoples", "Topic review", "Sources about the past"],
+  "Английский язык": ["Greetings and introductions", "My family", "Colours and numbers", "Animals", "At school", "Food and drinks", "Present tense", "My day", "Weather and seasons", "Hobbies"],
+  "Физкультура": ["Warm-up and drills", "Sprinting", "Team games", "Relay races with a ball", "Flexibility exercises", "Jump rope", "Basketball dribbling", "Climbing and balance"],
+  "Музыка": ["Rhythm and melody", "Meet the instruments", "Learning a song", "Listening to classics", "Choir singing", "Folk tunes"],
+  "ИЗО": ["Warm and cool colours", "Painting an autumn landscape", "Modelling clay", "Paper collage", "Portrait of a friend", "Still life"],
+};
+const HOMEWORK_EN = ["Page 24, exercises 3–5", "Learn the rule and do exercise 2", "Read the text and answer the questions", "Workbook, page 12", "Review the times tables", "Bring a drawing on today's topic", "Learn 5 new words", "Handwriting book, page 8", "Prepare a retelling", "No homework"];
+const STAFF_EN = { 1: "Helen Brooks", 2: "Maria Lopez", 3: "Emily Carter", 4: "Andrew Collins", 5: "Natalie Ross", 6: "Olivia Bennett", 7: "Sophie Hayes", 8: "Anna Fisher", 9: "Dennis Walsh", 10: "Tanya Bell", 11: "Paul Nicholson", 12: "Julia Price", 13: "Vera Holt", 14: "Sergio Andrade", 15: "David Allen" };
+// Ставки: в русской версии рубли, в английской доллары.
+const RATES = {
+  ru: { 1: [90000], 2: [75000], 3: [null, 700], 4: [null, 700], 5: [null, 650], 6: [60000], 7: [40000, 500, 800], 8: [1800], 9: [null, 650], 12: [58000], 13: [1700], 14: [72000], 15: [150000], perPupilClass: 4500, perPupilSubject: 3500, subRef: 90000, nannyRef: 1800, overtime: 300 },
+  en: { 1: [1500], 2: [1250], 3: [null, 12], 4: [null, 12], 5: [null, 11], 6: [1000], 7: [650, 8, 13], 8: [30], 9: [null, 11], 12: [950], 13: [28], 14: [1200], 15: [2500], perPupilClass: 75, perPupilSubject: 58, subRef: 1500, nannyRef: 30, overtime: 5 },
+};
+const rate = (id, i) => { const r = RATES[LANG][id]; return r && r[i] !== undefined ? r[i] : null; };
 
 const SAD_GROUPS = {
   [C1]: [["Младшая", 7, 3], ["Старшая", 7, 5], ["Подготовительная (младшая)", 6, 5], ["Подготовительная (старшая)", 6, 6]],
@@ -88,9 +110,9 @@ const CLASS_SUBJECTS = {
 };
 
 // Предмет → учитель (по id сотрудника), по городам.
-function teacherFor(city, subj) {
+function teacherFor(city, subj, cls) {
   if (city === C1) {
-    if (subj === "Математика") return 3;
+    if (subj === "Математика") return (cls === "4 класс" || cls === "5 класс") ? 4 : 3;
     if (subj === "Русский язык" || subj === "Литература" || subj === "История") return 4;
     if (subj === "Английский язык" || subj === "Музыка" || subj === "Окружающий мир") return 5;
     return 9; // Физкультура, ИЗО
@@ -102,26 +124,28 @@ function teacherFor(city, subj) {
 const SLOTS = [["09:00", "09:45"], ["09:55", "10:40"], ["10:50", "11:35"], ["12:00", "12:45"], ["12:55", "13:40"]];
 
 function buildStaff() {
-  const mk = (id, name, city, position, pay_type, rate, extra) => Object.assign({
-    id, name, city, position, contract_end: "", phone: "+7 900 555-02-" + p2(10 + id), pay_type, monthly_rate: rate, active: true,
-    telegram_id: "", lesson_rate: null, extended_day_rate: null, overtime_rate: null, work_start: "09:00", work_end: "18:00",
-  }, extra || {});
+  const mk = (id, name, city, position, pay_type) => ({
+    id, name: isEn() ? STAFF_EN[id] : name, city, position, contract_end: "",
+    phone: (isEn() ? "+1 555 020 " : "+7 900 555-02-") + p2(10 + id), pay_type,
+    monthly_rate: rate(id, 0), active: true, telegram_id: "",
+    lesson_rate: rate(id, 1), extended_day_rate: rate(id, 2), overtime_rate: null, work_start: "09:00", work_end: "18:00",
+  });
   return [
-    mk(1, "Громова Елена Викторовна", C1, "Завуч", "monthly_fixed", 90000, { telegram_id: "900002" }),
-    mk(2, "Орлова Мария Андреевна", C1, "Администратор", "monthly_fixed", 75000, { telegram_id: "900003" }),
-    mk(3, "Соколова Ирина Павловна", C1, "Учитель", "per_lesson", null, { lesson_rate: 700, telegram_id: "900001" }),
-    mk(4, "Бережной Андрей Николаевич", C1, "Учитель", "per_lesson", null, { lesson_rate: 700 }),
-    mk(5, "Морозова Наталья Игоревна", C1, "Учитель", "per_lesson", null, { lesson_rate: 650 }),
-    mk(6, "Ковалёва Ольга Сергеевна", C1, "Воспитатель", "monthly_fixed", 60000),
-    mk(7, "Фролова Светлана Ивановна", C1, "Воспитатель (подготовительная группа)", "monthly_fixed", 40000, { lesson_rate: 500, extended_day_rate: 800 }),
-    mk(8, "Зайцева Анна Олеговна", C1, "Няня", "per_shift", 1800),
-    mk(9, "Крылов Денис Алексеевич", C1, "Учитель", "per_lesson", null, { lesson_rate: 650 }),
-    mk(10, "Белова Татьяна Юрьевна", C2, "Учитель", "by_class_size", null),
-    mk(11, "Никитин Павел Романович", C2, "Учитель", "by_student_count", null),
-    mk(12, "Лебедева Юлия Андреевна", C2, "Воспитатель", "monthly_fixed", 58000),
-    mk(13, "Тихонова Вера Петровна", C2, "Няня", "per_shift", 1700),
-    mk(14, "Андреев Сергей Леонидович", C2, "Администратор", "monthly_fixed", 72000),
-    mk(15, "Алексеев Дмитрий Сергеевич", "", "Директор", "monthly_fixed", 150000, { telegram_id: "900004" }),
+    mk(1, "Громова Елена Викторовна", C1, "Завуч", "monthly_fixed"),
+    mk(2, "Орлова Мария Андреевна", C1, "Администратор", "monthly_fixed"),
+    mk(3, "Соколова Ирина Павловна", C1, "Учитель", "per_lesson"),
+    mk(4, "Бережной Андрей Николаевич", C1, "Учитель", "per_lesson"),
+    mk(5, "Морозова Наталья Игоревна", C1, "Учитель", "per_lesson"),
+    mk(6, "Ковалёва Ольга Сергеевна", C1, "Воспитатель", "monthly_fixed"),
+    mk(7, "Фролова Светлана Ивановна", C1, "Воспитатель (подготовительная группа)", "monthly_fixed"),
+    mk(8, "Зайцева Анна Олеговна", C1, "Няня", "per_shift"),
+    mk(9, "Крылов Денис Алексеевич", C1, "Учитель", "per_lesson"),
+    mk(10, "Белова Татьяна Юрьевна", C2, "Учитель", "by_class_size"),
+    mk(11, "Никитин Павел Романович", C2, "Учитель", "by_student_count"),
+    mk(12, "Лебедева Юлия Андреевна", C2, "Воспитатель", "monthly_fixed"),
+    mk(13, "Тихонова Вера Петровна", C2, "Няня", "per_shift"),
+    mk(14, "Андреев Сергей Леонидович", C2, "Администратор", "monthly_fixed"),
+    mk(15, "Алексеев Дмитрий Сергеевич", "", "Директор", "monthly_fixed"),
   ];
 }
 
@@ -131,9 +155,10 @@ function buildChildren(rnd, today) {
   const usedNames = new Set();
   const person = (female) => {
     for (let t = 0; t < 200; t++) {
-      const first = (female ? F_FIRST : M_FIRST)[Math.floor(rnd() * 16)];
+      const first = (female ? (isEn() ? F_FIRST_EN : F_FIRST) : (isEn() ? M_FIRST_EN : M_FIRST))[Math.floor(rnd() * 16)];
       const sn = SURN[Math.floor(rnd() * SURN.length)];
-      const name = sn[female ? 1 : 0] + " " + first;
+      const en = SURN_EN[Math.floor(rnd() * SURN_EN.length)];
+      const name = isEn() ? first + " " + en : sn[female ? 1 : 0] + " " + first;
       if (!usedNames.has(name)) { usedNames.add(name); return { name, sn }; }
     }
     return { name: "Новикова Алиса " + id, sn: SURN[0] };
@@ -142,13 +167,15 @@ function buildChildren(rnd, today) {
     const female = rnd() < 0.5;
     const { name, sn } = person(female);
     const dob = new Date(today.getFullYear() - age, Math.floor(rnd() * 12), 1 + Math.floor(rnd() * 27));
-    const mom = MOM[Math.floor(rnd() * MOM.length)] + " " + sn[1];
-    let parent = mom + " | +7 900 555-01-" + p2(10 + (id % 80)) + " | @parent_" + id;
-    if (rnd() < 0.5) parent += "\n" + DAD[Math.floor(rnd() * DAD.length)] + " " + sn[0] + " | +7 900 555-03-" + p2(10 + (id % 80)) + " | ";
+    const last = isEn() ? name.split(" ")[1] : null;
+    const mom = isEn() ? MOM_EN[Math.floor(rnd() * MOM_EN.length)] + " " + last : MOM[Math.floor(rnd() * MOM.length)] + " " + sn[1];
+    const ph = isEn() ? "+1 555 010 0" : "+7 900 555-01-";
+    let parent = mom + " | " + ph + p2(10 + (id % 80)) + " | @parent_" + id;
+    if (rnd() < 0.5) parent += "\n" + (isEn() ? DAD_EN[Math.floor(rnd() * DAD_EN.length)] + " " + last : DAD[Math.floor(rnd() * DAD.length)] + " " + sn[0]) + " | " + (isEn() ? "+1 555 030 0" : "+7 900 555-03-") + p2(10 + (id % 80)) + " | ";
     const k = {
       id, name, dob: fmtDmy(dob), city, dept, group, type, until, parent, telegram_id: "",
-      allergy: rnd() < 0.12 ? ["Цитрусовые", "Орехи", "Лактоза", "Яйца"][Math.floor(rnd() * 4)] : "Нет",
-      date_start: "01.09.2026", cost: dept === SAD ? "32000" : "38000", payment_date: "",
+      allergy: rnd() < 0.12 ? (isEn() ? ["Citrus", "Nuts", "Lactose", "Eggs"] : ["Цитрусовые", "Орехи", "Лактоза", "Яйца"])[Math.floor(rnd() * 4)] : "Нет",
+      date_start: "01.09.2026", cost: isEn() ? (dept === SAD ? "550" : "650") : (dept === SAD ? "32000" : "38000"), payment_date: "",
       payment_status: "Оплачено", status: "Активный",
     };
     kids.push(k); id++;
@@ -177,16 +204,16 @@ function buildJournal(children) {
     Object.keys(CLASS_SUBJECTS[city]).forEach((cls, ci) => {
       const names = CLASS_SUBJECTS[city][cls];
       const sid = {};
-      names.forEach(n => { sid[n] = subId; subjects.push({ id: subId, city, class_name: cls, name: n, teacher_staff_id: teacherFor(city, n) }); subId++; });
+      names.forEach(n => { sid[n] = subId; subjects.push({ id: subId, city, class_name: cls, name: isEn() ? SUBJ_EN[n] : n, key: n, teacher_staff_id: teacherFor(city, n, cls) }); subId++; });
       for (let w = 1; w <= 5; w++) {
         const rot = names.slice((w * 2 + ci) % names.length).concat(names.slice(0, (w * 2 + ci) % names.length)).slice(0, 5);
         rot.forEach((n, k) => {
           schedule.push({
             id: schId++, city, class_name: cls, weekday: w, time_start: SLOTS[k][0], time_end: SLOTS[k][1],
-            subject_id: sid[n], teacher_staff_id: teacherFor(city, n), is_break: false, break_label: "",
+            subject_id: sid[n], teacher_staff_id: teacherFor(city, n, cls), is_break: false, break_label: "",
           });
         });
-        schedule.push({ id: schId++, city, class_name: cls, weekday: w, time_start: "11:35", time_end: "12:00", subject_id: null, teacher_staff_id: null, is_break: true, break_label: "Обед" });
+        schedule.push({ id: schId++, city, class_name: cls, weekday: w, time_start: "11:35", time_end: "12:00", subject_id: null, teacher_staff_id: null, is_break: true, break_label: isEn() ? "Lunch" : "Обед" });
       }
     });
   });
@@ -206,14 +233,14 @@ function fillJournal(S, today, nowMin, rnd) {
       if (e.weekday !== w || e.is_break || !isSchoolDay(d, e.city)) return;
       if (dmy === todayDmy && e.time_start >= "10:50") return; // сегодня заполнены только первые два урока, остальные ждут учителя
       const sub = subById[e.subject_id];
-      const key = e.city + "|" + e.class_name + "|" + sub.name;
+      const key = e.city + "|" + e.class_name + "|" + sub.key;
       counters[key] = (counters[key] || 0);
-      const bank = SUBJ_TOPICS[sub.name] || ["Урок"];
+      const bank = (isEn() ? SUBJ_TOPICS_EN : SUBJ_TOPICS)[sub.key] || ["Урок"];
       const topic = bank[counters[key] % bank.length];
       counters[key]++;
       const lk = e.id + "|" + dmy;
       S.topics[lk] = topic;
-      if (rnd() < 0.75) S.homework[lk] = HOMEWORK[Math.floor(rnd() * HOMEWORK.length)];
+      if (rnd() < 0.75) S.homework[lk] = (isEn() ? HOMEWORK_EN : HOMEWORK)[Math.floor(rnd() * HOMEWORK.length)];
       const kids = kidsByClass[e.city + "|" + e.class_name] || [];
       const att = {};
       kids.forEach(k => { att[k.id] = rnd() < 0.93 ? "present" : "absent"; });
@@ -297,7 +324,28 @@ function fillStaffAttendance(S, today, rnd) {
   });
 }
 
-function seedState(today, nowMin) {
+// Замены на «сегодня», чтобы их было видно сразу: учитель-демо замещает чужой урок,
+// у другого урока подменён предмет, третий отменён.
+function addDefaultSubstitutions(S, today) {
+  const dmy = fmtDmy(today), w = isoDow(today);
+  const day = S.schedule.filter(e => e.city === C1 && e.weekday === w && !e.is_break);
+  const busy = id => new Set(day.filter(e => e.teacher_staff_id === id).map(e => e.time_start));
+  const late = e => e.time_start >= "10:50";
+  const used = new Set();
+  const a = day.find(e => e.time_start === "09:55" && e.teacher_staff_id !== 3 && !busy(3).has(e.time_start)) || day.find(e => e.teacher_staff_id !== 3 && !busy(3).has(e.time_start));
+  if (a) { S.subs.push({ schedule_id: a.id, date: dmy, teacher_staff_id: 3, external: false, no_lesson: false, override_subject_id: null }); used.add(a.id); }
+  const b = day.find(e => late(e) && !used.has(e.id) && e.teacher_staff_id === 4 && !busy(9).has(e.time_start) &&
+    S.subjects.some(s => s.city === C1 && s.class_name === e.class_name && s.key === "Физкультура"));
+  if (b) {
+    const pe = S.subjects.find(s => s.city === C1 && s.class_name === b.class_name && s.key === "Физкультура");
+    S.subs.push({ schedule_id: b.id, date: dmy, teacher_staff_id: 9, external: false, no_lesson: false, override_subject_id: pe.id }); used.add(b.id);
+  }
+  const c = day.find(e => late(e) && !used.has(e.id) && e.teacher_staff_id === 5);
+  if (c) S.subs.push({ schedule_id: c.id, date: dmy, teacher_staff_id: null, external: false, no_lesson: true, override_subject_id: null });
+}
+
+function seedState(today, nowMin, lang) {
+  LANG = lang === "en" ? "en" : "ru";
   const rnd = mulberry(20261127);
   const S = {
     v: 1, seedDay: fmtDmy(today), nextId: 1000,
@@ -312,6 +360,8 @@ function seedState(today, nowMin) {
   fillJournal(S, today, nowMin, rnd);
   fillAttendance(S, today, rnd);
   fillStaffAttendance(S, today, rnd);
+
+  addDefaultSubstitutions(S, today);
 
   // Расписание выходов на завтра/послезавтра
   const t1 = fmtDmy(addDays(today, 1));
@@ -356,14 +406,18 @@ function seedState(today, nowMin) {
 // Все данные в памяти (S), ничего не уходит по сети.
 
 const USERS = {
-  teacher: { tg: "900001", name: "Соколова Ирина", role: "Учитель", city: C1, staffId: 3, label: "Учитель" },
-  zavuch: { tg: "900002", name: "Громова Елена", role: "Завуч", city: C1, staffId: 1, label: "Завуч" },
-  admin: { tg: "900003", name: "Орлова Мария", role: "Администратор", city: C1, staffId: 2, label: "Админ" },
-  director: { tg: "900004", name: "Алексеев Дмитрий", role: "Директор", city: "", staffId: 15, label: "Директор" },
-  parent: { tg: "900005", name: "Родитель Демо", role: "Родитель", city: C1, staffId: null, label: "Родитель" },
+  teacher: { tg: "900001", role: "Учитель", city: C1, staffId: 3, ru: ["Ирина Соколова", "Учитель"], en: ["Emily Carter", "Teacher"] },
+  zavuch: { tg: "900002", role: "Завуч", city: C1, staffId: 1, ru: ["Елена Громова", "Завуч"], en: ["Helen Brooks", "Deputy head"] },
+  admin: { tg: "900003", role: "Администратор", city: C1, staffId: 2, ru: ["Мария Орлова", "Админ"], en: ["Maria Lopez", "Admin"] },
+  director: { tg: "900004", role: "Директор", city: "", staffId: 15, ru: ["Дмитрий Алексеев", "Директор"], en: ["David Allen", "Director"] },
+  parent: { tg: "900005", role: "Родитель", city: C1, staffId: null, ru: ["Родитель", "Родитель"], en: ["Parent", "Parent"] },
 };
+const uName = u => u[LANG][0];
+const uLabel = u => u[LANG][1];
 
-const fmtMoney = n => String(Math.round(n)).replace(/\B(?=(\d{3})+(?!\d))/g, " ");
+const fmtNum = n => String(Math.round(n)).replace(/\B(?=(\d{3})+(?!\d))/g, isEn() ? "," : " ");
+const money = n => isEn() ? "$" + fmtNum(n) : fmtNum(n) + " ₽";
+const T = (ru, en) => isEn() ? en : ru;
 const weekdaysIn = (y, m) => { let n = 0; const last = new Date(y, m, 0).getDate(); for (let d = 1; d <= last; d++) { const w = new Date(y, m - 1, d).getDay(); if (w !== 0 && w !== 6) n++; } return n; };
 
 function createApi(ctx) {
@@ -441,33 +495,35 @@ function createApi(ctx) {
     const monthKey = d => { const x = parseDmy(d); return x.getFullYear() === y && x.getMonth() + 1 === m; };
     const present = Object.keys(att).filter(d => monthKey(d) && att[d].status === "present");
     const weekdays = weekdaysIn(y, m);
+    const R = RATES[LANG];
     const rate = Number(st.monthly_rate) || 0;
     const breakdown = [];
     let salary = 0;
     const subDays = present.filter(d => att[d].is_substitution);
     const normal = present.length - subDays.length;
+    const line = (n, r) => n + " × " + money(r) + " = " + money(n * r);
     if (st.pay_type === "per_shift") {
-      const subRate = 90000 / weekdays;
+      const subRate = R.subRef / weekdays;
       salary = rate * normal + subRate * subDays.length;
-      if (normal) breakdown.push({ label: "Обычные смены", text: normal + " × " + fmtMoney(rate) + " ₽ = " + fmtMoney(rate * normal) + " ₽" });
-      if (subDays.length) breakdown.push({ label: "Дни замены воспитателя", text: subDays.length + " × " + fmtMoney(subRate) + " ₽ = " + fmtMoney(subRate * subDays.length) + " ₽", note: "ставка замены: 90 000 ₽ ÷ " + weekdays + " будних дней = " + fmtMoney(subRate) + " ₽/день" });
+      if (normal) breakdown.push({ label: T("Обычные смены", "Regular shifts"), text: line(normal, rate) });
+      if (subDays.length) breakdown.push({ label: T("Дни замены воспитателя", "Covering for a teacher"), text: line(subDays.length, subRate) });
     } else if (st.pay_type === "monthly_fixed") {
       const day = weekdays ? rate / weekdays : 0;
-      salary = day * normal + 1800 * subDays.length;
-      if (normal) breakdown.push({ label: "Отработано", text: normal + " × " + fmtMoney(day) + " ₽ = " + fmtMoney(day * normal) + " ₽", note: "ставка в день: " + fmtMoney(rate) + " ₽ ÷ " + weekdays + " будних дней = " + fmtMoney(day) + " ₽/день" });
-      if (subDays.length) breakdown.push({ label: "Дни замены (работал няней)", text: subDays.length + " × 1 800 ₽ = " + fmtMoney(1800 * subDays.length) + " ₽" });
+      salary = day * normal + R.nannyRef * subDays.length;
+      if (normal) breakdown.push({ label: T("Отработано", "Days worked"), text: line(normal, day), note: T("ставка в день: " + money(rate) + " ÷ " + weekdays + " будних дней", "daily rate: " + money(rate) + " ÷ " + weekdays + " weekdays") });
+      if (subDays.length) breakdown.push({ label: T("Дни замены (работал няней)", "Days covering as a nanny"), text: line(subDays.length, R.nannyRef) });
     } else if (st.pay_type === "by_class_size" || st.pay_type === "by_student_count") {
       const classes = [...new Set(S().schedule.filter(e => e.city === st.city && e.teacher_staff_id === st.id && !e.is_break).map(e => e.class_name))];
-      if (!classes.length) return { error: "Не удалось рассчитать ЗП по числу учеников: нет расписания в журнале" };
+      if (!classes.length) return { error: T("Нет расписания в журнале", "No timetable in the register") };
       let total = 0; const parts = [];
       classes.forEach(cn => {
         const n = S().children.filter(c => c.city === st.city && c.group === cn && c.status !== "Выбыл").length;
-        const r = st.pay_type === "by_class_size" ? n * 4500 : n * 3500;
-        total += r; parts.push(cn + " (" + n + " учен." + (st.pay_type === "by_class_size" ? " → " + fmtMoney(r) + " ₽" : "") + ")");
+        const r = n * (st.pay_type === "by_class_size" ? R.perPupilClass : R.perPupilSubject);
+        total += r; parts.push(cn + " (" + n + T(" учен.", " pupils") + ")");
       });
       const day = weekdays ? total / weekdays : 0;
       salary = day * present.length;
-      if (present.length) breakdown.push({ label: "Отработано", text: present.length + " × " + fmtMoney(day) + " ₽ = " + fmtMoney(day * present.length) + " ₽", note: "классы: " + parts.join(", ") + " = " + fmtMoney(total) + " ₽/мес ÷ " + weekdays + " будних дней = " + fmtMoney(day) + " ₽/день" });
+      if (present.length) breakdown.push({ label: T("Отработано", "Days worked"), text: line(present.length, day), note: T("классы: ", "classes: ") + parts.join(", ") + " = " + money(total) + T("/мес", "/mo") });
     }
     let lessonsTotal = 0, extDays = 0;
     const lr = Number(st.lesson_rate) || 0, er = Number(st.extended_day_rate) || 0;
@@ -479,14 +535,14 @@ function createApi(ctx) {
       }
       extDays = Object.keys(att).filter(d => monthKey(d) && att[d].worked_extended_day).length;
       salary += lessonsTotal * lr + extDays * er;
-      if (lessonsTotal) breakdown.push({ label: "Уроки", text: lessonsTotal + " × " + fmtMoney(lr) + " ₽ = " + fmtMoney(lessonsTotal * lr) + " ₽" });
-      if (extDays) breakdown.push({ label: "Продлёнка", text: extDays + " × " + fmtMoney(er) + " ₽ = " + fmtMoney(extDays * er) + " ₽" });
+      if (lessonsTotal) breakdown.push({ label: T("Уроки", "Lessons"), text: line(lessonsTotal, lr) });
+      if (extDays) breakdown.push({ label: T("Продлёнка", "After-school care"), text: line(extDays, er) });
     }
-    const otRate = Number(st.overtime_rate) || 300;
+    const otRate = Number(st.overtime_rate) || R.overtime;
     const ot = present.reduce((a, d) => a + (att[d].overtime_hours || 0), 0);
-    if (ot) { salary += ot * otRate; breakdown.push({ label: "Переработка", text: ot + " ч × " + fmtMoney(otRate) + " ₽ = " + fmtMoney(ot * otRate) + " ₽" }); }
-    if (!breakdown.length) breakdown.push({ label: "Нет отмеченных дней", text: "0 ₽" });
-    breakdown.push({ label: "Итого", text: fmtMoney(salary) + " ₽", isTotal: true });
+    if (ot) { salary += ot * otRate; breakdown.push({ label: T("Переработка", "Overtime"), text: ot + T(" ч × ", " h × ") + money(otRate) + " = " + money(ot * otRate) }); }
+    if (!breakdown.length) breakdown.push({ label: T("Нет отмеченных дней", "No days marked"), text: money(0) });
+    breakdown.push({ label: T("Итого", "Total"), text: money(salary), isTotal: true });
     return { staff_id: st.id, name: st.name, monthly_rate: rate, overtime_total: ot, weekdays_in_month: weekdays, present_days: present.length, lessons_total: lessonsTotal, extended_days_total: extDays, breakdown, salary: Math.round(salary) };
   }
 
@@ -533,7 +589,7 @@ function createApi(ctx) {
     if (path === "/staff" && method === "GET") {
       const own = me.staffId ? staffById(me.staffId) : null;
       return ok({ staff: {
-        telegram_id: me.tg, name: me.name, city: me.city, role: me.role,
+        telegram_id: me.tg, name: uName(me), city: me.city, role: me.role,
         payroll_staff_id: own ? own.id : null, pay_type: own ? own.pay_type : null, lesson_rate: own ? own.lesson_rate : null,
         extended_day_rate: own ? own.extended_day_rate : null, overtime_rate: own ? own.overtime_rate : null,
         is_journal_teacher: !!(own && hasSchedule(own.id)), pending_announcements: [],
@@ -886,48 +942,187 @@ function createApi(ctx) {
   return { route, calcSalary, teacherLessons, childOut };
 }
 
-// ── Браузерная обвязка: подмена Telegram, fetch, часов и переключатель ролей ──
+// ── Английская версия: перевод интерфейса на лету (только текст на экране, логика не трогается) ──
+const EN_RULES = [
+  [/(\d+)([АБ]?) класс(?:а|е|ы|ов)?/g, (m, n, l) => "Grade " + n + (l === "А" ? "A" : l === "Б" ? "B" : "")],
+  [/(\d) триместр/g, "Term $1"],
+  [/(\d[\d\s  ]*\d|\d)\s?₽/g, (m, n) => "$" + n.replace(/[\s  ]/g, ",")],
+  [/(\d+) (?:лет|года|год)(?![А-Яа-яЁё])/g, "$1 y.o."],
+  [/(\d+) (?:учеников|ученика|ученик)(?![А-Яа-яЁё])/g, (m, n) => n + (n === "1" ? " pupil" : " pupils")],
+  [/(\d+) (?:дней|дня|день)(?![А-Яа-яЁё])/g, (m, n) => n + (n === "1" ? " day" : " days")],
+  [/(\d+) (?:моих предметов|моих предмета|мой предмет)/g, (m, n) => n + (n === "1" ? " my subject" : " my subjects")],
+  [/(\d+) (?:предметов|предмета|предмет)(?![А-Яа-яЁё])/g, (m, n) => n + (n === "1" ? " subject" : " subjects")],
+  [/(\d+) (?:уроков|урока|урок)(?![А-Яа-яЁё])/g, (m, n) => n + (n === "1" ? " lesson" : " lessons")],
+  [/(\d+) (?:детей|ребёнка|ребёнок)(?![А-Яа-яЁё])/g, (m, n) => n + (n === "1" ? " child" : " children")],
+  [/(\d+)у(?![А-Яа-яЁё])/g, "$1L"],
+  [/(\d+) ?ч(?![А-Яа-яЁё])/g, "$1 h"],
+  [/₽/g, "$"],
+];
+
+const EN_DICT = {
+  // шапка, навигация, общие
+  "Школа — Посещаемость": "School — Attendance", "Школа — Мой ребёнок": "School — My child", "Школа": "School",
+  "Главная": "Home", "Журнал": "Register", "Дети": "Children", "Персонал": "Staff", "Уведомления": "Notifications", "Дневник": "Diary",
+  "Доброе утро": "Good morning", "Добрый день": "Good afternoon", "Добрый вечер": "Good evening", "Команда": "Team",
+  "Сегодня": "Today", "сегодня": "today", "Назад": "Back", "Закрыть": "Close", "Отмена": "Cancel", "Сохранить": "Save", "Удалить": "Delete",
+  "Добавить": "Add", "Открыть": "Open", "Обновить": "Refresh", "Повторить": "Retry", "Понятно": "Got it", "Позже": "Later", "Ещё": "More",
+  "Редактировать": "Edit", "ред": "edit", "Очистить": "Clear", "Убрать": "Remove", "убрать": "remove", "удалить": "delete", "указать": "set",
+  "Загрузка": "Loading", "Загружаем": "Loading", "Загружаем дневник": "Loading diary", "Сохраняем": "Saving", "Сохраняем…": "Saving…", "Считаем": "Calculating", "Ищем": "Searching",
+  "Ошибка": "Error", "Ошибка загрузки": "Loading error", "Ошибка сети": "Network error", "Ошибка сохранения": "Saving error", "ошибка сервера": "server error",
+  "Нет данных": "No data", "Нет": "No", "Да": "Yes", "Новый": "New", "Итого": "Total", "Сводка": "Summary", "Важно": "Important",
+  "Филиал 1": "Branch 1", "Филиал 2": "Branch 2", "Филиал": "Branch", "Оба филиала": "Both branches", "Город": "Branch",
+  "Детский сад": "Kindergarten", "Сад": "Kindergarten", "Садик": "Kindergarten", "Направление": "Department",
+  "Все группы": "All groups", "Без группы": "No group", "Группа/Класс": "Group/Grade", "Класс": "Grade", "Классы": "Grades", "класс": "grade",
+  "Младшая": "Junior", "Старшая": "Senior", "Подготовительная (младшая)": "Pre-K (junior)", "Подготовительная (старшая)": "Pre-K (senior)", "Подготовительная": "Pre-K", "подготовительная": "pre-K", "Ясельная": "Toddlers",
+  "Полный": "Full day", "Полдня": "Half day", "Посуточно": "Daily", "Активный": "Active", "Выбыл": "Left", "Задолженность": "Overdue",
+  "Учитель": "Teacher", "Завуч": "Deputy head", "Администратор": "Administrator", "Директор": "Director", "Няня": "Nanny",
+  "Воспитатель (подготовительная группа)": "Kindergarten teacher (pre-K)", "Воспитатель": "Kindergarten teacher", "Родитель": "Parent",
+  "завуч": "deputy head", "админ": "admin", "директор": "director",
+  "Тап по сегодняшнему дню — указать число уроков": "Tap today to set the lesson count", "Тап по дню — указать число уроков": "Tap a day to set the lesson count",
+  "смену": "shift", "/час": "/h", "час": "hour", "Скачать сводку за": "Download summary for", "ведомость": "report", "Ведомость": "Report",
+  "Архив": "Archive", "Архивировать": "Archive", "Архивировать карточку": "Archive card", "Восстановить из архива": "Restore from archive",
+  "Предмет и учитель этих двух уроков обменяются с завтрашнего дня, прошлое не меняется. День и время остаются прежними (при обмене остальные поля формы не сохраняются)": "Subject and teacher of these two lessons will be swapped from tomorrow, the past does not change. Day and time stay the same",
+  // дни и месяцы
+  "Понедельник": "Monday", "Вторник": "Tuesday", "Среда": "Wednesday", "Четверг": "Thursday", "Пятница": "Friday", "Суббота": "Saturday", "Воскресенье": "Sunday",
+  "Пн": "Mo", "Вт": "Tu", "Ср": "We", "Чт": "Th", "Пт": "Fr", "Сб": "Sa", "Вс": "Su", "пн": "Mon", "вт": "Tue", "ср": "Wed", "чт": "Thu", "пт": "Fri", "сб": "Sat", "вс": "Sun",
+  "Январь": "January", "Февраль": "February", "Март": "March", "Апрель": "April", "Май": "May", "Июнь": "June", "Июль": "July", "Август": "August", "Сентябрь": "September", "Октябрь": "October", "Ноябрь": "November", "Декабрь": "December",
+  "января": "January", "февраля": "February", "марта": "March", "апреля": "April", "мая": "May", "июня": "June", "июля": "July", "августа": "August", "сентября": "September", "октября": "October", "ноября": "November", "декабря": "December",
+  "янв": "Jan", "фев": "Feb", "мар": "Mar", "апр": "Apr", "июн": "Jun", "июл": "Jul", "авг": "Aug", "сен": "Sep", "окт": "Oct", "ноя": "Nov", "дек": "Dec",
+  "Год": "Year", "год": "year", "года": "years", "лет": "years", "день": "day", "дня": "days", "дней": "days", "дню": "day", "мес": "mo", "млн": "M", "ч": "h", "до": "until", "и": "and", "Только на": "Only on", "только": "only",
+  // главная
+  "Заполненность групп": "Group attendance", "Вы отмечены на сегодня": "You are checked in for today", "Отметиться": "Check in", "Отметить присутствие": "Check in",
+  "Отметить, что я сегодня на работе": "Mark that I'm at work today", "Не забудьте отметиться и отметить детей": "Don't forget to check in and mark the children",
+  "Теперь считается по журналу — отмечаться не нужно. Заполнили тему или посещаемость — урок автоматически зачтётся вам": "Counted from the register now, no need to check in. Fill in the topic or attendance and the lesson is credited to you automatically",
+  "Заполнено": "Filled in", "Не заполнено": "Not filled in", "Данные заполнены": "Data filled in", "Уроков нет": "No lessons", "В этот день уроков нет": "No lessons on this day",
+  "Сегодня учебный день — отметить": "Today is a school day — check in", "Проверяем местоположение…": "Checking location…", "Проверить снова": "Check again",
+  "Вы не на месте": "You are not on site", "Пока не видим вас рядом с садиком/школой — откройте приложение, когда будете на месте": "We don't see you near the school yet — open the app when you arrive",
+  "Доступно обновление — нажмите, чтобы применить": "Update available — tap to apply", "Персонал по дням": "Staff by day", "Кто работал в этот день": "Who worked on this day",
+  // посещаемость
+  "Пришли": "Present", "Отсутствуют": "Absent", "Пришёл": "Present", "Был": "Present", "Была": "Present", "Не был": "Absent", "Не было": "Absent", "не было": "absent",
+  "Все пришли": "Everyone is here", "Все отмечены": "Everyone is marked", "Никто не отмечен": "Nobody marked", "Отметить детей": "Mark children", "Отметить посещаемость": "Mark attendance",
+  "Сохранить журнал": "Save register", "Журнал сохранён": "Register saved", "Выберите дату": "Choose a date", "Выбрать дату": "Choose date", "Выходной день": "Day off",
+  "Журнал посещаемости доступен только в будние дни": "Attendance is available on weekdays only", "Не отмечен сегодня": "Not marked today", "Нет детей": "No children", "Нет детей в этой группе": "No children in this group",
+  "Отмечено!": "Marked!", "Отметка снята": "Mark removed", "Данные сохранены!": "Saved!", "Не сохранено": "Not saved", "Изменений нет": "No changes",
+  // дети
+  "Список детей": "Children list", "Добавить ребёнка": "Add child", "Новый ребёнок": "New child", "Ребёнок добавлен!": "Child added!", "Имя": "First name", "Фамилия": "Last name", "Отчество": "Middle name",
+  "Дата рождения (возраст считается по ней)": "Date of birth (age is calculated from it)", "До какого времени": "Until", "Тип": "Type", "Имя родителя": "Parent's name", "Телефон": "Phone",
+  "Второй родитель": "Second parent", "Добавить второго родителя": "Add second parent", "Родитель не указан": "No parent given", "Особенности здоровья": "Health notes", "Особенности": "Notes",
+  "Аллергии, непереносимости": "Allergies, intolerances", "Сохранить изменения": "Save changes", "Введите имя ребёнка": "Enter the child's name", "Введите группу": "Enter the group",
+  "День рождения сегодня!": "Birthday today!", "День рождения через": "Birthday in", "Задолженность по оплате": "Payment overdue", "Нет уведомлений": "No notifications",
+  "Дата": "Date", "ДД.ММ.ГГГГ": "DD.MM.YYYY", "дд.мм.гггг": "dd.mm.yyyy", "Например": "For example", "Новый ученик": "New pupil", "Ученик": "Pupil", "ученик": "pupil", "ученика": "pupils", "учеников": "pupils",
+  "Цитрусовые": "Citrus", "Орехи": "Nuts", "Лактоза": "Lactose", "Яйца": "Eggs", "Иван": "John", "Иванов": "Smith", "Иванова": "Smith", "Анастасия": "Anna", "Петровна": "Marie",
+  "ребёнка": "child", "Дневник ребёнка": "Child's diary", "Мои дети": "My children", "Нет подтверждённых заявок": "No confirmed requests", "Из заявок": "From requests", "Выберите из последних пробных": "Choose from recent trial lessons",
+  // журнал
+  "Мои классы": "My grades", "Замена": "Cover", "замена": "cover", "замену": "cover", "замещает": "covers", "замещаете вы": "you cover", "Замена учителя": "Teacher cover",
+  "Расписание": "Timetable", "Предметы": "Subjects", "Предмет": "Subject", "Предмет не указан": "No subject", "Без предмета": "No subject", "Урок без предмета": "Lesson without subject",
+  "История уроков": "Lesson history", "Итоговые оценки": "Final grades", "Оценки": "Marks", "Урок": "Lesson", "урок": "lesson", "Уроки": "Lessons", "урока": "lessons", "Перерыв": "Break",
+  "Самостоятельная": "Quiz", "Контрольная": "Test", "ДЗ": "HW", "Дз": "HW", "дз": "HW", "упр": "ex.", "Домашнее задание": "Homework", "Тема урока": "Lesson topic", "Без темы": "No topic", "без темы": "no topic",
+  "Урок не проводился": "No lesson held", "Урока не было": "No lesson", "урока не было": "no lesson", "Урок сохранён": "Lesson saved", "Урок очищен": "Lesson cleared", "Урок добавлен": "Lesson added",
+  "Поставить оценку": "Give a mark", "Оценка поставлена": "Mark given", "Удалить оценку": "Delete mark", "нет оценок": "no marks", "Средний балл": "Average", "средний балл": "average",
+  "Был на уроке": "Was in class", "Учитель не назначен": "No teacher assigned", "Учитель не назначен — нажмите, чтобы назначить": "No teacher — tap to assign", "не назначен": "not assigned", "Без учителя": "No teacher",
+  "Внешняя замена": "External cover", "Без замены (обычный учитель)": "No cover (regular teacher)", "Внешняя замена (не из системы, ЗП никому)": "External cover (not in the system, no pay)",
+  "Какой предмет ведёт": "Which subject they teach", "Какой предмет ведёте": "Which subject you teach", "обычно ведёт": "usually teaches", "Не менять": "Keep as is",
+  "Отмечено как замена": "Marked as cover", "Отметка замены снята": "Cover removed", "Отмечено — можно вносить тему, дз и посещаемость": "Done — you can now add the topic, homework and attendance",
+  "У вас нет уроков в этом классе": "You have no lessons in this grade", "Это не ваш предмет": "This is not your subject", "нет прав на этот урок": "no access to this lesson",
+  "Вы пока не назначены учителем ни на один урок — обратитесь к администратору": "You are not assigned to any lessons yet — contact the administrator",
+  "Классов пока нет": "No grades yet", "Пока нет предметов": "No subjects yet", "Пока нет учеников в этом классе": "No pupils in this grade yet", "Новый предмет": "New subject", "Название предмета": "Subject name",
+  "Добавить урок": "Add lesson", "Добавить ученика": "Add pupil", "Изменить урок": "Edit lesson", "Поменять местами с другим уроком": "Swap with another lesson", "Уроки поменялись местами": "Lessons swapped",
+  "Выйти из редактирования": "Exit editing", "Нажмите, чтобы переименовать класс": "Tap to rename the grade", "Класс переименован": "Grade renamed", "Класс, например 5А": "Grade, e.g. 5A",
+  "Нет классов — впишите название ниже и нажмите «Открыть»": "No grades — type a name below and tap “Open”", "Например, Обед": "E.g. Lunch", "Например: Дроби — сложение и вычитание": "E.g. Fractions — adding and subtracting",
+  "Это перерыв (завтрак/обед), не урок": "This is a break (breakfast/lunch), not a lesson", "Время не указано": "No time set", "Итоговая оценка сохранена": "Final mark saved", "Комментарий сохранён": "Comment saved",
+  "За что оценка — увидят родители": "What the mark is for — parents will see it", "без комментария — нажмите, чтобы добавить": "no comment — tap to add", "Ученик добавлен в класс": "Pupil added to the grade", "Ученик убран из класса": "Pupil removed from the grade",
+  "Нет доступных учеников": "No pupils available", "Некого добавлять": "Nobody to add", "без класса)": "no grade)", "из класса": "from the grade", "Для этого периода нет диапазона дат": "No dates for this period",
+  "Сначала добавьте предмет во вкладке «Предметы»": "Add a subject in the “Subjects” tab first", "Сначала снимите отметку «урока не было»": "Remove the “no lesson” mark first", "Сначала укажите тему урока": "Add the lesson topic first",
+  "Полностью очистить урок: тема, дз, посещаемость и оценки будут удалены. Урок перестанет считаться проведённым. Продолжить?": "Clear the lesson completely: topic, homework, attendance and marks will be deleted. Continue?",
+  "Нет связи — урок не загрузился. Уже внесённое не пропало, просто сейчас не видно": "No connection — the lesson did not load. Nothing is lost",
+  "Тема, оценки и посещаемость в этот день пойдут в дневник и ЗП как": "Topic, marks and attendance on this day go to the diary and pay as",
+  "Уроки считаются автоматически по журналу (тема + посещаемость) — отмечать их здесь больше не нужно": "Lessons are counted automatically from the register (topic + attendance)",
+  "Мой предмет": "My subject",
+  // персонал и зарплата
+  "Добавить сотрудника": "Add staff member", "Новый сотрудник": "New staff member", "Нет сотрудников": "No staff", "Нет активных сотрудников": "No active staff", "Должность": "Position", "Договор до": "Contract until",
+  "Тип оплаты": "Pay type", "Месячный фикс": "Monthly fixed", "За смену": "Per shift", "За урок": "Per lesson", "Ставка в месяц": "Monthly rate", "Ставка за смену": "Rate per shift", "Ставка за урок": "Rate per lesson",
+  "Ставка за продлёнку": "After-school rate", "Ставка за переработку": "Overtime rate", "Начало смены": "Shift start", "Конец смены": "Shift end", "Сводка по зарплатам": "Pay summary", "ЗП за месяц": "Pay for the month",
+  "Отработано (будних дней)": "Worked (weekdays)", "Уроков за месяц": "Lessons this month", "Дней продлёнки": "After-school days", "Часов переработки": "Overtime hours", "Переработка": "Overtime", "Переработка сегодня": "Overtime today",
+  "Переработка, ч": "Overtime, h", "Переработка сохранена": "Overtime saved", "Продлёнка": "After-school care", "продлёнку": "after-school care", "Была продлёнка?": "After-school care?", "Пр": "AS",
+  "Моя посещаемость": "My attendance", "Запланировано": "Planned", "Никто не запланирован": "Nobody planned", "Добавить в план": "Add to plan", "Убрать из плана": "Remove from plan",
+  "Тап по будущей дате — добавить/убрать из плана на этот день": "Tap a future date to add or remove from the plan", "Тап по дню — переключить": "Tap a day to toggle",
+  "Сколько уроков было проведено?": "How many lessons were taught?", "Сколько уроков было сегодня?": "How many lessons today?", "Сколько уроков?": "How many lessons?", "Сколько часов переработки?": "How many overtime hours?",
+  "Замена воспитателя": "Covering for a teacher", "Замена воспитателя сегодня": "Covering for a teacher today", "сегодня замещаю воспитателя": "covering for a teacher today",
+  "Ставка не задана — откройте карточку и укажите": "Rate not set — open the card to set it", "Укажите ставку за урок — без неё зарплата по урокам не посчитается": "Set the rate per lesson to calculate lesson pay",
+  "Кл. руководитель, Филиал 2 (по числу учеников)": "Class teacher, Branch 2 (by pupils)", "Предметник, Филиал 2 (по числу учеников)": "Subject teacher, Branch 2 (by pupils)", "по числу учеников": "by pupils",
+  "Необязательно — фикс. доплата за день, если задержался дольше обычного": "Optional — fixed extra pay for staying longer",
+  "Если указан — сотрудник сразу получает доступ к боту и мини-аппу": "If set, the staff member gets access right away",
+  "Обычные смены": "Regular shifts", "Отработано": "Days worked", "Дни замены воспитателя": "Covering for a teacher", "Нет отмеченных дней": "No days marked",
+  // родитель
+  "Этот": "This", "аккаунт пока не привязан ни к одному ребёнку": "account is not linked to any child yet", "Обратитесь к администратору «Школа» за кодом привязки": "Ask the school administrator for a link code",
+  "Не удалось открыть дневник": "Could not open the diary", "Не удалось открыть дневник — ссылка могла устареть": "Could not open the diary — the link may have expired", "Откройте карточку ребёнка заново": "Open the child's card again",
+  // ошибки
+  "Не удалось сохранить": "Could not save", "Не удалось загрузить данные": "Could not load data", "Не удалось поставить оценку": "Could not give a mark", "Не удалось сохранить урок": "Could not save the lesson",
+  "Не удалось сохранить оценку": "Could not save the mark", "Не удалось удалить оценку": "Could not delete the mark", "Не удалось сохранить замену": "Could not save the cover", "Не удалось отменить замену": "Could not cancel the cover",
+  "Не удалось отметить замену": "Could not mark the cover", "Не удалось очистить урок": "Could not clear the lesson", "Не удалось добавить": "Could not add", "Не удалось добавить предмет": "Could not add the subject",
+  "Не удалось добавить ученика": "Could not add the pupil", "Не удалось убрать ученика": "Could not remove the pupil", "Не удалось сохранить предмет": "Could not save the subject", "Не удалось удалить предмет": "Could not delete the subject",
+  "Не удалось удалить урок": "Could not delete the lesson", "Не удалось переименовать класс": "Could not rename the grade", "Не удалось сохранить комментарий": "Could not save the comment",
+  "Не удалось отметить, попробуйте ещё раз": "Could not mark, try again", "Не удалось отменить, попробуйте ещё раз": "Could not cancel, try again", "Не удалось убрать": "Could not remove",
+  "Ошибка сети — данные НЕ сохранены, попробуйте ещё раз": "Network error — NOT saved, try again",
+};
+
+function makeTranslator() {
+  const keys = Object.keys(EN_DICT).sort((a, b) => b.length - a.length);
+  const esc = k => k.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  const re = new RegExp("(?<![А-Яа-яЁё])(" + keys.map(esc).join("|") + ")(?![А-Яа-яЁё])", "g");
+  return function (s) {
+    if (!s || !/[А-Яа-яЁё₽]/.test(s)) return s;
+    for (const [r, f] of EN_RULES) s = s.replace(r, f);
+    return s.replace(re, m => EN_DICT[m]);
+  };
+}
+
+function installTranslator(win) {
+  const tr = makeTranslator();
+  const doc = win.document;
+  const ATTRS = ["placeholder", "title", "aria-label"];
+  const fixEl = el => { ATTRS.forEach(a => { const v = el.getAttribute && el.getAttribute(a); if (v) { const t = tr(v); if (t !== v) el.setAttribute(a, t); } }); };
+  let seen = null; // в пределах одной пачки изменений каждый узел обходим один раз
+  const walk = root => {
+    if (root.nodeType === 3) { const pn = root.parentNode; if (pn && (pn.nodeName === "SCRIPT" || pn.nodeName === "STYLE")) return; const v = root.nodeValue; if (/[А-Яа-яЁё₽]/.test(v)) { const t = tr(v); if (t !== v) root.nodeValue = t; } return; }
+    if (root.nodeType !== 1 || root.tagName === "SCRIPT" || root.tagName === "STYLE" || root.id === "demoSwitcher") return;
+    if (seen) { if (seen.has(root)) return; seen.add(root); }
+    fixEl(root);
+    for (let c = root.firstChild; c; c = c.nextSibling) walk(c);
+  };
+  const run = () => { if (doc.body) walk(doc.body); const t = tr(doc.title); if (t !== doc.title) doc.title = t; };
+  new win.MutationObserver(muts => {
+    seen = new Set();
+    for (const m of muts) {
+      if (m.type === "characterData") { if (m.target.isConnected) walk(m.target); }
+      else if (m.type === "attributes") { if (m.target.isConnected) fixEl(m.target); }
+      else m.addedNodes.forEach(n => { if (n.isConnected) walk(n); });
+    }
+    seen = null;
+  }).observe(doc.documentElement, { childList: true, subtree: true, characterData: true, attributes: true, attributeFilter: ATTRS });
+  win.addEventListener("DOMContentLoaded", run);
+  const a = win.alert, c = win.confirm;
+  win.alert = m => a.call(win, tr(String(m)));
+  win.confirm = m => c.call(win, tr(String(m)));
+  return tr;
+}
+
+// ── Браузерная обвязка: подмена Telegram, fetch, часов; роли, дизайны, язык ──
 const API_HOST = "https://api.demo.local";
 const API_HOST_BACKUP = "https://api-backup.demo.local";
-const STATE_KEY = "demo_state_v1";
-const ROLE_KEY = "demo_role";
-const PANEL_KEY = "demo_panel_open";
+const ROLE_KEY = "demo_role", DESIGN_KEY = "demo_design", LANG_KEY = "demo_lang", PANEL_KEY = "demo_panel_open";
+const DESIGNS = {
+  classic: { base: "dark", ru: "Ночь", en: "Night" },
+  light: { base: "light", ru: "Светлая", en: "Light" },
+  warm: { base: "light", ru: "Тёплая", en: "Warm" },
+  bright: { base: "light", ru: "Яркая", en: "Bright" },
+  strict: { base: "light", ru: "Строгая", en: "Strict" },
+};
+const EMBED_ALLOWED = ["https://assist9998.github.io", "http://localhost", "http://127.0.0.1"];
 
 function lsGet(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }
 function lsSet(k, v) { try { localStorage.setItem(k, v); } catch (e) {} }
-function lsDel(k) { try { localStorage.removeItem(k); } catch (e) {} }
 
-function installClock(win, real) {
-  const demo = pickDemoDate(real);
-  const mid = new Date(real.getFullYear(), real.getMonth(), real.getDate());
-  const shift = Math.round((demo.getTime() - mid.getTime()) / 86400000);
-  if (!shift) return demo;
-  const RD = win.Date;
-  const nowShifted = () => { const d = new RD(); d.setDate(d.getDate() + shift); return d.getTime(); };
-  win.Date = new Proxy(RD, {
-    construct(t, args, nt) { if (args.length === 0) return new t(nowShifted()); return Reflect.construct(t, args, nt); },
-    apply() { return new RD(nowShifted()).toString(); },
-    get(t, p, r) { if (p === "now") return nowShifted; return Reflect.get(t, p, t); },
-  });
-  return demo;
-}
-
-function pageKind(win) {
-  const p = (win.location.pathname || "").toLowerCase();
-  if (p.endsWith("/parent.html")) return "parent";
-  if (p.endsWith("/bookings.html")) return "bookings";
-  return "index";
-}
-
-function pickRole(page) {
-  let r = lsGet(ROLE_KEY);
-  if (!USERS[r]) r = "teacher";
-  if (page === "parent") return "parent";
-  if (page === "bookings" && r !== "admin" && r !== "director") return "admin";
-  return r;
-}
-
-const EMBED_ALLOWED = ["https://assist9998.github.io", "http://localhost", "http://127.0.0.1"];
 function embedAllowed(win) {
   if (win.top === win) return true;
   let origins = [];
@@ -937,35 +1132,77 @@ function embedAllowed(win) {
   return origins.every(o => EMBED_ALLOWED.some(a => o === a || o.indexOf(a + ":") === 0));
 }
 
+// В демо время всегда 13 ноября, 10:30 в момент открытия, дальше идёт как обычно.
+const DEMO_MINUTES = 10 * 60 + 30;
+function installClock(win) {
+  const demo = pickDemoDate();
+  const RD = win.Date;
+  const startMs = new RD(demo.getFullYear(), demo.getMonth(), demo.getDate(), 10, 30, 0).getTime();
+  const loadMs = RD.now();
+  const nowShifted = () => startMs + (RD.now() - loadMs);
+  win.Date = new Proxy(RD, {
+    construct(t, args, nt) { if (args.length === 0) return new t(nowShifted()); return Reflect.construct(t, args, nt); },
+    apply() { return new RD(nowShifted()).toString(); },
+    get(t, p) { if (p === "now") return nowShifted; return Reflect.get(t, p, t); },
+  });
+  return demo;
+}
+
+function pageKind(win) { return (win.location.pathname || "").toLowerCase().endsWith("/parent.html") ? "parent" : "index"; }
+
+function readOpts(win) {
+  const q = new URLSearchParams(win.location.search);
+  const pick = (k, key, ok, def) => { const v = q.get(k) || lsGet(key); return ok(v) ? v : def; };
+  const o = {
+    role: pick("role", ROLE_KEY, v => !!USERS[v], "teacher"),
+    design: pick("design", DESIGN_KEY, v => !!DESIGNS[v], "classic"),
+    lang: pick("lang", LANG_KEY, v => v === "en" || v === "ru", "ru"),
+    embed: q.get("embed") === "1",
+  };
+  lsSet(ROLE_KEY, o.role); lsSet(DESIGN_KEY, o.design); lsSet(LANG_KEY, o.lang);
+  return o;
+}
+
+function applyDesign(win, d) {
+  const de = win.document.documentElement;
+  if (d === "classic") de.removeAttribute("data-demo-design"); else de.setAttribute("data-demo-design", d);
+  de.setAttribute("data-theme", DESIGNS[d].base);
+  lsSet("demo_theme", DESIGNS[d].base); lsSet("demo_parent_theme", DESIGNS[d].base); lsSet(DESIGN_KEY, d);
+}
+
+function pageUrl(page, o) {
+  const q = new URLSearchParams({ role: o.role, design: o.design, lang: o.lang });
+  if (o.embed) q.set("embed", "1");
+  return (page === "parent" ? "parent.html" : "index.html") + "?" + q.toString();
+}
+
 function browserInit(win) {
   if (!embedAllowed(win)) {
     try { win.stop(); } catch (e) {}
     win.document.documentElement.innerHTML = '<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"></head><body style="margin:0;display:flex;min-height:100vh;align-items:center;justify-content:center;background:#0b0d12;color:#fff;font-family:system-ui,sans-serif;text-align:center;padding:24px"><div>Демо открывается только на сайте автора.<br><br><a style="color:#7fb0ff" href="https://assist9998.github.io/demo.html#school" target="_top">Открыть демо</a></div></body>';
     return;
   }
-  // Открыто на компьютере отдельной вкладкой: показываем в рамке телефона (внутри iframe рамка не нужна).
+  // Открыто на компьютере отдельной вкладкой: показываем в рамке телефона.
   if (win.top === win && win.innerWidth > 700) {
     const file = (win.location.pathname.split("/").pop() || "index.html") + (win.location.search || "");
     win.location.replace("phone.html?src=" + encodeURIComponent(file));
     return;
   }
-  const real = new Date();
-  const today = installClock(win, real);
-  const nowMin = real.getHours() * 60 + real.getMinutes();
+  const o = readOpts(win);
   const page = pageKind(win);
-  const role = pickRole(page);
-  if (page === "index" && lsGet(ROLE_KEY) === "parent") { win.location.replace("parent.html"); return; }
+  if (page === "index" && o.role === "parent") { win.location.replace(pageUrl("parent", o)); return; }
+  if (page === "parent" && o.role !== "parent") o.role = "parent";
 
-  let S = null;
-  try { const raw = lsGet(STATE_KEY); if (raw) { const s = JSON.parse(raw); if (s && s.v === 1 && s.seedDay === fmtDmy(today)) S = s; } } catch (e) {}
-  if (!S) S = seedState(today, nowMin);
-  let timer = null;
-  const save = () => { clearTimeout(timer); timer = setTimeout(() => { try { lsSet(STATE_KEY, JSON.stringify(ctx.S)); } catch (e) {} }, 300); };
-  const ctx = { S, today, nowMin, user: () => USERS[role], onChange: save, baseUrl: win.location.href };
+  const today = installClock(win);
+  const nowMin = DEMO_MINUTES;
+  applyDesign(win, o.design);
+  if (o.lang === "en") { win.document.documentElement.lang = "en"; installTranslator(win); }
+
+  // Данные живут только в памяти страницы: после перезагрузки демо снова как новое.
+  const S = seedState(today, nowMin, o.lang);
+  const ctx = { S, today, nowMin, user: () => USERS[o.role], baseUrl: win.location.href };
   const api = createApi(ctx);
-  save();
 
-  // fetch: все запросы к «серверу» отвечает api.route, остальное — как обычно.
   const nativeFetch = win.fetch ? win.fetch.bind(win) : null;
   win.fetch = async function (input, init) {
     const url = typeof input === "string" ? input : (input && input.url) || "";
@@ -983,7 +1220,6 @@ function browserInit(win) {
     return nativeFetch ? nativeFetch(input, init) : Promise.reject(new Error("no fetch"));
   };
 
-  // Геолокация: всегда «на месте», без запроса разрешения.
   try {
     Object.defineProperty(win.navigator, "geolocation", { configurable: true, value: {
       getCurrentPosition(ok) { setTimeout(() => ok({ coords: { latitude: 55.75, longitude: 37.61, accuracy: 10 }, timestamp: Date.now() }), 50); },
@@ -991,74 +1227,67 @@ function browserInit(win) {
     } });
   } catch (e) {}
 
-  // Telegram.WebApp
-  const u = USERS[role];
-  const saveBlob = (name, text, type) => {
-    const a = win.document.createElement("a");
-    a.href = win.URL.createObjectURL(new Blob([text], { type }));
-    a.download = name; win.document.body.appendChild(a); a.click(); a.remove();
-  };
+  const u = USERS[o.role];
   win.Telegram = { WebApp: {
-    initData: "demo", initDataUnsafe: { user: { id: Number(u.tg), first_name: u.name.split(" ")[1] || u.name, last_name: u.name.split(" ")[0] || "" } },
-    platform: "demo", version: "8.0", colorScheme: "dark", themeParams: {}, isExpanded: true,
+    initData: "demo", initDataUnsafe: { user: { id: Number(u.tg), first_name: uName(u).split(" ")[0], last_name: uName(u).split(" ")[1] || "" } },
+    platform: "demo", version: "6.0", colorScheme: "dark", themeParams: {}, isExpanded: true,
     ready() {}, expand() {}, close() {}, requestFullscreen() {}, setHeaderColor() {}, setBackgroundColor() {}, enableClosingConfirmation() {},
-    onEvent() {}, offEvent() {}, sendData() {},
-    openLink(url) { try { win.open(url, "_blank", "noopener"); } catch (e) {} },
-    openTelegramLink() {},
+    onEvent() {}, offEvent() {}, sendData() {}, openLink() {}, openTelegramLink() {},
     showAlert(msg, cb) { win.alert(msg); if (cb) cb(); },
     showConfirm(msg, cb) { const r = win.confirm(msg); if (cb) cb(r); },
     HapticFeedback: { impactOccurred() {}, notificationOccurred() {}, selectionChanged() {} },
-    downloadFile(opts, cb) {
-      try {
-        const rel = String(opts.url).replace(API_HOST, "").replace(/([?&])init_data=[^&]*/, "").replace(/\?&/, "?").replace(/[?&]$/, "");
-        const r = api.route("GET", rel, null);
-        if (r.file) saveBlob(r.file.name, r.file.text, r.file.type);
-        if (cb) cb(true);
-      } catch (e) { if (cb) cb(false); }
-    },
   } };
 
-  win.__demo = { role, today: fmtDmy(today), reset() { lsDel(STATE_KEY); win.location.reload(); } };
-  win.addEventListener("DOMContentLoaded", () => mountSwitcher(win, page, role));
-  if (win.document.readyState !== "loading") mountSwitcher(win, page, role);
+  let renderPanel = () => {};
+  // Сайт может переключать дизайн без перезагрузки.
+  win.addEventListener("message", e => {
+    const okOrigin = e.origin === win.location.origin || EMBED_ALLOWED.some(a => e.origin === a || e.origin.indexOf(a + ":") === 0);
+    if (!okOrigin) return;
+    const d = e.data || {};
+    if (d.type === "demo:design" && DESIGNS[d.design]) { o.design = d.design; applyDesign(win, d.design); renderPanel(); }
+  });
+
+  win.__demo = { role: o.role, lang: o.lang, design: o.design, today: fmtDmy(today) };
+  win.addEventListener("DOMContentLoaded", () => { if (!o.embed) renderPanel = mountSwitcher(win, page, o); });
 }
 
-function mountSwitcher(win, page, role) {
+function mountSwitcher(win, page, o) {
   const doc = win.document;
-  if (doc.getElementById("demoSwitcher")) return;
+  const en = o.lang === "en";
   const wrap = doc.createElement("div");
   wrap.id = "demoSwitcher";
-  const open0 = lsGet(PANEL_KEY) === "1";
-  const base = "font-family:'Geologica',system-ui,sans-serif;box-sizing:border-box;";
-  wrap.style.cssText = base + "position:fixed;top:8px;right:8px;z-index:2147483000;max-width:230px;color:#fff;";
-  const chipStyle = base + "display:flex;align-items:center;gap:6px;background:rgba(20,22,30,.92);border:1px solid rgba(255,255,255,.18);border-radius:999px;padding:5px 11px;font-size:11.5px;font-weight:600;cursor:pointer;box-shadow:0 2px 10px rgba(0,0,0,.35);";
-  const btnStyle = (on) => base + "display:block;width:100%;text-align:left;border:0;border-radius:9px;padding:8px 10px;margin:0 0 5px;font-size:12.5px;font-weight:600;cursor:pointer;color:#fff;background:" + (on ? "#4f8ef7" : "rgba(255,255,255,.1)") + ";";
+  const base = "font-family:system-ui,-apple-system,sans-serif;box-sizing:border-box;";
+  wrap.style.cssText = base + "position:fixed;top:8px;right:8px;z-index:2147483000;max-width:240px;color:#fff;";
+  const chip = base + "display:flex;align-items:center;gap:6px;background:rgba(20,22,30,.9);border:1px solid rgba(255,255,255,.18);border-radius:999px;padding:5px 11px;font-size:11.5px;font-weight:600;cursor:pointer;box-shadow:0 2px 10px rgba(0,0,0,.3);";
+  const pill = on => base + "border:0;border-radius:999px;padding:6px 10px;margin:0 4px 5px 0;font-size:12px;font-weight:600;cursor:pointer;color:#fff;background:" + (on ? "#4f8ef7" : "rgba(255,255,255,.12)") + ";";
+  const title = t => '<div style="font-size:10.5px;opacity:.6;margin:6px 2px 5px;text-transform:uppercase;letter-spacing:.06em">' + t + '</div>';
   function render() {
-    const open = lsGet(PANEL_KEY) === "1";
-    if (!open) {
-      wrap.innerHTML = '<div id="demoChip" style="' + chipStyle + '"><span style="opacity:.7">Роль:</span><span>' + USERS[role].label + '</span><span style="opacity:.6">▾</span></div>';
+    if (lsGet(PANEL_KEY) !== "1") {
+      wrap.innerHTML = '<div id="demoChip" style="' + chip + '"><span style="opacity:.7">' + (en ? "Demo" : "Демо") + ' ·</span><span>' + uLabel(USERS[o.role]) + '</span><span style="opacity:.6">▾</span></div>';
       wrap.querySelector("#demoChip").onclick = () => { lsSet(PANEL_KEY, "1"); render(); };
       return;
     }
-    const roles = Object.keys(USERS).map(k => '<button data-role="' + k + '" style="' + btnStyle(k === role) + '">' + USERS[k].label + '</button>').join("");
-    const extra = (role === "admin" || role === "director") && page !== "bookings" ? '<a href="bookings.html" style="' + btnStyle(false) + 'text-decoration:none">Заявки и лист ожидания</a>' : (page === "bookings" ? '<a href="index.html" style="' + btnStyle(false) + 'text-decoration:none">← К приложению</a>' : "");
-    wrap.innerHTML = '<div style="' + base + 'background:rgba(20,22,30,.96);border:1px solid rgba(255,255,255,.18);border-radius:14px;padding:10px;box-shadow:0 6px 24px rgba(0,0,0,.45);">' +
-      '<div style="font-size:11px;opacity:.65;margin:0 2px 8px">Демо-режим · данные выдуманные</div>' + roles + extra +
-      '<button id="demoReset" style="' + btnStyle(false) + 'background:rgba(255,107,107,.22)">Сбросить демо</button>' +
-      '<button id="demoHide" style="' + btnStyle(false) + 'margin-bottom:0;text-align:center;opacity:.8">Свернуть</button></div>';
-    wrap.querySelectorAll("button[data-role]").forEach(b => { b.onclick = () => { lsSet(ROLE_KEY, b.getAttribute("data-role")); win.location.href = b.getAttribute("data-role") === "parent" ? "parent.html" : "index.html"; }; });
-    wrap.querySelector("#demoReset").onclick = () => { lsDel(STATE_KEY); win.location.reload(); };
+    wrap.innerHTML = '<div style="' + base + 'background:rgba(20,22,30,.96);border:1px solid rgba(255,255,255,.18);border-radius:14px;padding:8px 10px 10px;box-shadow:0 6px 24px rgba(0,0,0,.45);">' +
+      '<div style="font-size:11px;opacity:.65;margin:0 2px 2px">' + (en ? "Demo · all data is made up" : "Демо · все данные выдуманные") + '</div>' +
+      title(en ? "Role" : "Роль") + Object.keys(USERS).map(k => '<button data-role="' + k + '" style="' + pill(k === o.role) + '">' + uLabel(USERS[k]) + '</button>').join("") +
+      title(en ? "Design" : "Дизайн") + Object.keys(DESIGNS).map(k => '<button data-design="' + k + '" style="' + pill(k === o.design) + '">' + DESIGNS[k][o.lang] + '</button>').join("") +
+      title(en ? "Language" : "Язык") + ["ru", "en"].map(k => '<button data-lang="' + k + '" style="' + pill(k === o.lang) + '">' + k.toUpperCase() + '</button>').join("") +
+      '<button id="demoHide" style="' + pill(false) + 'display:block;width:100%;margin:6px 0 0">' + (en ? "Hide" : "Свернуть") + '</button></div>';
+    wrap.querySelectorAll("button[data-role]").forEach(b => { b.onclick = () => { const r = b.getAttribute("data-role"); win.location.href = pageUrl(r === "parent" ? "parent" : "index", Object.assign({}, o, { role: r })); }; });
+    wrap.querySelectorAll("button[data-design]").forEach(b => { b.onclick = () => { o.design = b.getAttribute("data-design"); applyDesign(win, o.design); render(); }; });
+    wrap.querySelectorAll("button[data-lang]").forEach(b => { b.onclick = () => { if (b.getAttribute("data-lang") !== o.lang) win.location.href = pageUrl(page, Object.assign({}, o, { lang: b.getAttribute("data-lang") })); }; });
     wrap.querySelector("#demoHide").onclick = () => { lsSet(PANEL_KEY, "0"); render(); };
   }
   render();
   doc.body.appendChild(wrap);
+  return render;
 }
 
 if (typeof window !== "undefined" && typeof document !== "undefined") {
   browserInit(window);
 }
 if (typeof module !== "undefined" && module.exports) {
-  module.exports = { embedAllowed, seedState, createApi, USERS, pickDemoDate, isSchoolDay, fmtDmy, parseDmy, C1, C2, SAD, SCH, lessonsTaught };
+  module.exports = { embedAllowed, seedState, createApi, USERS, pickDemoDate, isSchoolDay, fmtDmy, parseDmy, C1, C2, SAD, SCH, lessonsTaught, makeTranslator, uName };
 }
 
 })();
