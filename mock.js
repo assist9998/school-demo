@@ -983,6 +983,7 @@ const EN_DICT = {
   "смену": "shift", "/час": "/h", "час": "hour", "Скачать сводку за": "Download summary for", "ведомость": "report", "Ведомость": "Report",
   "Архив": "Archive", "Архивировать": "Archive", "Архивировать карточку": "Archive card", "Восстановить из архива": "Restore from archive",
   "Предмет и учитель этих двух уроков обменяются с завтрашнего дня, прошлое не меняется. День и время остаются прежними (при обмене остальные поля формы не сохраняются)": "Subject and teacher of these two lessons will be swapped from tomorrow, the past does not change. Day and time stay the same",
+  "Заполнен": "Filled in", "Не заполнен": "Not filled in", "заполнено": "filled in", "ждут": "to fill", "уроков": "lessons", "Вместо:": "Instead of:",
   // дни и месяцы
   "Понедельник": "Monday", "Вторник": "Tuesday", "Среда": "Wednesday", "Четверг": "Thursday", "Пятница": "Friday", "Суббота": "Saturday", "Воскресенье": "Sunday",
   "Пн": "Mo", "Вт": "Tu", "Ср": "We", "Чт": "Th", "Пт": "Fr", "Сб": "Sa", "Вс": "Su", "пн": "Mon", "вт": "Tue", "ср": "Wed", "чт": "Thu", "пт": "Fri", "сб": "Sat", "вс": "Sun",
@@ -1108,10 +1109,56 @@ function installTranslator(win) {
   return tr;
 }
 
+// ── «Главная» и уроки по-новому поверх оригинального приложения ──
+// Оригинальная плашка приветствия остаётся, но список уроков учителя выносится из неё
+// в отдельный блок: лента дней, три счётчика и крупные карточки уроков.
+function installHome(win) {
+  const doc = win.document;
+  const DOW = ["Вс", "Пн", "Вт", "Ср", "Чт", "Пт", "Сб"];
+  const esc = s => String(s == null ? "" : s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+  function enhance() {
+    const el = doc.getElementById("homeGreeting");
+    if (!el) return;
+    let box = doc.getElementById("homeLessons");
+    let staff = null, lessons = [];
+    try { staff = win.eval("staffInfo"); lessons = win.eval("todayLessons") || []; } catch (e) { return; }
+    if (!staff || !staff.is_journal_teacher || !lessons.length) { if (box) box.remove(); return; }
+    // убираем строки уроков внутри синей плашки
+    const old = el.querySelector('div[style*="flex-direction:column"][style*="gap:2px"]');
+    if (old) old.remove();
+    if (!box) { box = doc.createElement("div"); box.id = "homeLessons"; el.insertAdjacentElement("afterend", box); }
+    const today = new win.Date(), wd = today.getDay();
+    const strip = [1, 2, 3, 4, 5].map(i => {
+      const d = new win.Date(today.getFullYear(), today.getMonth(), today.getDate() + (i - wd));
+      return '<div class="hl-day' + (i === wd ? " on" : "") + '">' + DOW[i] + "<b>" + d.getDate() + "</b></div>";
+    }).join("");
+    const real = lessons.filter(l => !l.cancelled);
+    const done = real.filter(l => l.done).length;
+    const cards = lessons.map((l, i) => {
+      const chips = [(l.done ? '<span class="hl-chip ok">✓ Заполнен</span>' : '<span class="hl-chip todo">Не заполнен</span>')];
+      if (l.is_substitution) chips.push('<span class="hl-chip cov">Замена</span>');
+      if (l.subject_overridden) chips.push('<span class="hl-chip cov">Вместо: ' + esc(l.original_subject_name) + "</span>");
+      return '<div class="hl-card" onclick="__demoOpenLesson(' + i + ')"><div class="hl-time"><b>' + esc(l.time_start) + "</b><span>" + esc(l.time_end) + '</span></div><div class="hl-body"><div class="hl-sub">' + esc(l.subject_name) + '</div><div class="hl-cls">' + esc(l.class_name) + "</div>" + chips.join("") + '</div><span class="hl-go">›</span></div>';
+    }).join("");
+    box.innerHTML = '<div class="hl-days">' + strip + '</div><div class="hl-sum"><div><b>' + real.length + "</b><span>уроков</span></div><div><b style=\"color:var(--accent2)\">" + done + "</b><span>заполнено</span></div><div><b style=\"color:var(--warning)\">" + (real.length - done) + "</b><span>ждут</span></div></div>" + cards;
+  }
+  win.__demoOpenLesson = async function (i) {
+    const l = win.eval("todayLessons")[i]; if (!l) return;
+    const d = new win.Date(), wd = d.getDay() === 0 ? 7 : d.getDay();
+    await win.openJournalTeacherClass(l.class_name);
+    win.openJournalScheduleLessonGrades(l.subject_id, wd, 0, l.schedule_id);
+  };
+  win.addEventListener("DOMContentLoaded", () => {
+    const orig = win.renderHomeGreeting;
+    if (typeof orig !== "function") return;
+    win.renderHomeGreeting = function () { const r = orig.apply(this, arguments); try { enhance(); } catch (e) { console.error("home:", e); } return r; };
+  });
+}
+
 // ── Браузерная обвязка: подмена Telegram, fetch, часов; роли, дизайны, язык ──
 const API_HOST = "https://api.demo.local";
 const API_HOST_BACKUP = "https://api-backup.demo.local";
-const ROLE_KEY = "demo_role", DESIGN_KEY = "demo_design_v3", LANG_KEY = "demo_lang";
+const ROLE_KEY = "demo_role", DESIGN_KEY = "demo_design_v4", LANG_KEY = "demo_lang";
 const DESIGNS = {
   fresh: { base: "light", ru: "Свежая", en: "Fresh" },
   light: { base: "light", ru: "Светлая", en: "Light" },
@@ -1156,7 +1203,7 @@ function readOpts(win) {
   const pick = (k, key, ok, def) => { const v = q.get(k) || lsGet(key); return ok(v) ? v : def; };
   const o = {
     role: pick("role", ROLE_KEY, v => !!USERS[v], "teacher"),
-    design: pick("design", DESIGN_KEY, v => !!DESIGNS[v], "fresh"),
+    design: pick("design", DESIGN_KEY, v => !!DESIGNS[v], "light"),
     lang: pick("lang", LANG_KEY, v => v === "en" || v === "ru", "ru"),
     embed: q.get("embed") === "1",
   };
@@ -1248,6 +1295,7 @@ function browserInit(win) {
     if (d.type === "demo:design" && DESIGNS[d.design]) { o.design = d.design; applyDesign(win, d.design); renderPanel(); }
   });
 
+  installHome(win);
   win.__demo = { role: o.role, lang: o.lang, design: o.design, today: fmtDmy(today) };
   win.addEventListener("DOMContentLoaded", () => { renderPanel = mountSwitcher(win, page, o); });
 }
