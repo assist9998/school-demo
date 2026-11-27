@@ -928,6 +928,12 @@ function pickRole(page) {
 }
 
 function browserInit(win) {
+  // Открыто на компьютере отдельной вкладкой: показываем в рамке телефона (внутри iframe рамка не нужна).
+  if (win.top === win && win.innerWidth > 700) {
+    const file = (win.location.pathname.split("/").pop() || "index.html") + (win.location.search || "");
+    win.location.replace("phone.html?src=" + encodeURIComponent(file));
+    return;
+  }
   const real = new Date();
   const today = installClock(win, real);
   const nowMin = real.getHours() * 60 + real.getMinutes();

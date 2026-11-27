@@ -1,0 +1,19 @@
+<!doctype html>
+<html lang="ru"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Школа Пример: демо</title>
+<style>
+  html, body { height: 100%; margin: 0; background: #0b0d12; font-family: system-ui, sans-serif; }
+  body { display: flex; align-items: center; justify-content: center; }
+  .phone { width: 390px; height: min(820px, 94vh); border: 11px solid #1c1f29; border-radius: 46px; box-shadow: 0 0 0 2px #2d3140, 0 24px 70px rgba(0,0,0,.6); overflow: hidden; background: #000; }
+  .phone iframe { width: 100%; height: 100%; border: 0; display: block; }
+  @media (max-width: 700px) { .phone { width: 100%; height: 100%; border: 0; border-radius: 0; box-shadow: none; } }
+</style></head>
+<body>
+<div class="phone"><iframe id="f" title="Школа Пример: демо" allow="clipboard-write"></iframe></div>
+<script>
+  var src = new URLSearchParams(location.search).get("src") || "index.html";
+  if (!/^[a-z]+\.html(\?[\w=&%.\-]*)?$/.test(src)) src = "index.html";
+  document.getElementById("f").src = src;
+</script>
+</body></html>
